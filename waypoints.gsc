@@ -7,7 +7,6 @@ Main()
     level.discoverNodesMaxIterations = 100000;
 
     resetGraph();
-    startDiscovery();
 
     setCvar("developer", "2");
     setCvar("developer_script", "1");
@@ -59,6 +58,8 @@ initalizePlayer()
 
 startDiscovery()
 {
+    iPrintln("startDiscovery");
+    print("startDiscovery");
     startTime = getTime();
     resetGraph();
     startingSpawnPoint = getStartingSpawnPoint();
@@ -66,12 +67,13 @@ startDiscovery()
     addToOpenSet(index);
 
     discoverNodes();
+    iPrintln("Discovered nodes: ^2" + level.nodes.size);
+    iPrintln("Iterations: ^2" +  level.discoverNodesIterations);
+
     discoverEdges();
 
     secondsPassed = (getTime() - startTime) / 1000;
     iPrintln("Discovery took: ^2" + secondsPassed "s")
-    iPrintln("Discovered nodes: ^2" + level.nodes.size);
-    iPrintln("Iterations: ^2" +  level.discoverNodesIterations);
 }
 
 discoverNodes()
@@ -115,8 +117,12 @@ discoverEdges()
             addEdge(i, j);
         }
 
-        if (i % 100 == 0)
+
+        if (i % 10 == 0)
+        {
             iPrintln("Processed nodes: ^5" + int(100 * i / level.nodes.size) + "%");
+            print("Processed nodes: ^5" + int(100 * i / level.nodes.size) + "%");
+        }
     }
 }
 
