@@ -1,7 +1,9 @@
 
 Main()
 {
-    level.discovery_range = 40;
+    level.discovery_range = 50;
+    level.DRAW_WAYPOINT_DISTNACE_SQUARED = 160 * 160;
+    level.DISCOVER_OFFSET = 30;
 
     resetGraph();
     startDiscovery();
@@ -54,7 +56,7 @@ startDiscovery()
     index = addNode(startingSpawnPoint.origin);
     addToOpenSet(index);
 
-    maxIterations = 10000;
+    maxIterations = 100000;
     currentIteration = 1;
     discoverNodeIndex = getNextNodeIndexFromOpenSet();
     while (isDefined(discoverNodeIndex))
@@ -90,7 +92,10 @@ discoverFromNode(nodeIndex)
     for (i = 0; i < directions.size; i += 1)
     {
         direction = directions[i];
-        newOrigin = node.origin + maps\mp\_utility::vectorScale(direction, level.discovery_range);
+        newOrigin = getNewOrigin(node.origin, direction);
+
+        if (!isDefined(newOrigin))
+            continue;
 
         if (isOriginAlreadyInNodes(newOrigin))
             continue;
@@ -102,6 +107,17 @@ discoverFromNode(nodeIndex)
         addEdge(nodeIndex, index);
         addToOpenSet(index);
     }
+}
+
+getNewOrigin(origin, direction)
+{
+    origin = origin + (0, 0, level.DISCOVER_OFFSET);
+    origin = getDirectionOrigin(origin, direction);
+    if (!isDefined(origin))
+        return undefined;
+
+    origin = putOnTheGround(origin);
+    return origin;
 }
 
 playerLoop()
@@ -118,7 +134,9 @@ drawNodesAndEdges()
     for (i = 0; i < level.nodes.size; i += 1)
     {
         node = level.nodes[i];
-        print3d(node.origin + (0, 0, 2), i, (1, 1, 1), 1, 0.3, 1);
+        dist = distanceSquared(self.origin, node.origin);
+        if (dist < level.DRAW_WAYPOINT_DISTNACE_SQUARED)
+            print3d(node.origin + (0, 0, 2), i, (1, 1, 1), 1, 0.3, 1);
 
         edges = getEdgesFrom(i);
         if (!isDefined(edges))
@@ -127,7 +145,7 @@ drawNodesAndEdges()
         for (j = 0; j < edges.size; j += 1)
         {
             start = node.origin + (0, 0, 1);
-            endNode = getNode(edges[j]);
+            endNode = getNode(edges[j].to);
             end = endNode.origin + (0, 0, 1);
             line(start, end, (0.9, 0.7, 0.6), false, 1);
         }
@@ -152,12 +170,41 @@ getPossibleNormalizedDirections()
     return directions;
 }
 
+getDirectionOrigin(origin, direction)
+{
+    directionOrigin = origin + maps\mp\_utility::vectorScale(direction, level.discovery_range);
+
+    trace = bulletTrace(origin, directionOrigin, false, undefined);
+    if (trace["fraction"] == 1)
+        return directionOrigin;
+
+    adjustedDirection = vectorNormalize(trace["position"] - origin);
+    slopeAdjustedOrigin = origin + maps\mp\_utility::vectorScale(adjustedDirection, level.discovery_range);
+    adjustedTrace = bulletTrace(origin, slopeAdjustedOrigin, false, undefined);
+
+    if (adjustedTrace["fraction"] == 1)
+        return slopeAdjustedOrigin;
+
+    dist = distance(adjustedTrace["position"], origin);
+    justBeforeWallOrigin = origin + maps\mp\_utility::vectorScale(adjustedDirection, dist - 1);
+    return justBeforeWallOrigin;
+}
+
+putOnTheGround(origin)
+{
+    trace = bulletTrace(origin + (0, 0, 1), origin - (0, 0, 100), false, undefined);
+    if (trace["fraction"] < 1)
+        return trace["position"];
+
+    return undefined;
+}
+
 isOriginAlreadyInNodes(origin)
 {
     for (i = 0; i < level.nodes.size; i += 1)
     {
         dist = distanceSquared(origin, level.nodes[i].origin);
-        if (dist < 10)
+        if (dist < level.discovery_range * level.discovery_range / 4)
             return true;
     }
 
@@ -166,7 +213,7 @@ isOriginAlreadyInNodes(origin)
 
 isOriginAccesibleFromOther(fromOrigin, toOrigin)
 {
-    trace = bulletTrace(fromOrigin + (0, 0, 2), toOrigin + (0, 0, 2), false, undefined);
+    trace = bulletTrace(fromOrigin + (0, 0, 14), toOrigin + (0, 0, 14), false, undefined);
     iPrintln(trace["fraction"]);
     if (trace["fraction"] == 1)
         return true;
@@ -195,7 +242,11 @@ addEdge(from, to)
     if (!isDefined(level.edges[from + ""]))
         level.edges[from + ""] = [];
     
-    level.edges[from + ""][level.edges[from + ""].size] = to;
+    edge = spawnStruct();
+    edge.to = to;
+    edge.weight = distance(getNode(from).origin, getNode(to).origin);
+
+    level.edges[from + ""][level.edges[from + ""].size] = edge;
 }
 
 getEdgesFrom(from)
