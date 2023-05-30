@@ -4,6 +4,7 @@ Main()
     level.discovery_range = 50;
     level.DRAW_WAYPOINT_DISTNACE_SQUARED = 160 * 160;
     level.DISCOVER_OFFSET = 30;
+    level.discoverNodesMaxIterations = 100000;
 
     resetGraph();
     startDiscovery();
@@ -26,6 +27,7 @@ resetGraph()
 controlCvars()
 {
     setCvar("start", "");
+    setCvar("debugNode", "");
 
     while(true)
     {
@@ -36,55 +38,89 @@ controlCvars()
             setCvar("start", "");
         }
 
+        debugNode = getCvar("debugNode");
+        if (debugNode != "")
+        {
+            clearPrintsAndLines();
+            discoverFromNode(int(debugNode), true);
+            setCvar("debugNode", "");
+        }
+
         wait 0.1;
     }
 }
 
 initalizePlayer()
 {
-    while (true)
-    {
-		level waittill("connecting", player);
-        player thread playerLoop();
-    }
+    level waittill("connecting", player);
+    level.p = player;
+    level.p thread playerLoop();
 }
 
 startDiscovery()
 {
+    startTime = getTime();
     resetGraph();
     startingSpawnPoint = getStartingSpawnPoint();
     index = addNode(startingSpawnPoint.origin);
     addToOpenSet(index);
 
-    maxIterations = 100000;
-    currentIteration = 1;
+    discoverNodes();
+    discoverEdges();
+
+    secondsPassed = (getTime() - startTime) / 1000;
+    iPrintln("Discovery took: ^2" + secondsPassed "s")
+    iPrintln("Discovered nodes: ^2" + level.nodes.size);
+    iPrintln("Iterations: ^2" +  level.discoverNodesIterations);
+}
+
+discoverNodes()
+{
+    level.discoverNodesIterations = 1;
     discoverNodeIndex = getNextNodeIndexFromOpenSet();
     while (isDefined(discoverNodeIndex))
     {
-        discoverFromNode(discoverNodeIndex);
+        discoverFromNode(discoverNodeIndex, false);
 
-        if (currentIteration == maxIterations)
-        {
-            iPrintln("Ending on iteration " + currentIteration);
+        if (level.discoverNodesIterations == level.discoverNodesMaxIterations)
             break;
-        }
 
-        currentIteration += 1;
+        level.discoverNodesIterations += 1;
         discoverNodeIndex = getNextNodeIndexFromOpenSet();
     }
 
-    iPrintln("Discovered nodes: " + level.nodes.size);
-	players = getEntArray("player", "classname");
-    for (i = 0; i < players.size; i += 1)
-    {
-        if (!isAlive(players[i]))
-            continue;
+    return level.discoverNodesIterations;
+}
 
-        players[i] setOrigin(startingSpawnPoint.origin);
+discoverEdges()
+{
+    for (i = 0; i < level.nodes.size; i += 1)
+    {
+        node = level.nodes[i];
+
+        for (j = 0; j < level.nodes.size; j += 1)
+        {
+            if (i == j)
+                continue;
+
+            otherNode = level.nodes[j];
+
+            dist = distanceSquared(node.origin, otherNode.origin);
+            if (dist > level.discovery_range * level.discovery_range * 2.25)
+                continue;
+
+            if (!isOriginAccesibleFromOther(node.origin, otherNode.origin))
+                continue;
+
+            addEdge(i, j);
+        }
+
+        if (i % 100 == 0)
+            iPrintln("Processed nodes: ^5" + int(100 * i / level.nodes.size) + "%");
     }
 }
 
-discoverFromNode(nodeIndex)
+discoverFromNode(nodeIndex, isDebug)
 {
     node = getNode(nodeIndex);
 
@@ -92,31 +128,44 @@ discoverFromNode(nodeIndex)
     for (i = 0; i < directions.size; i += 1)
     {
         direction = directions[i];
-        newOrigin = getNewOrigin(node.origin, direction);
+        newOrigin = getNewOrigin(node.origin, direction, isDebug);
 
         if (!isDefined(newOrigin))
             continue;
 
         if (isOriginAlreadyInNodes(newOrigin))
-            continue;
+        {
+            if (isDebug)
+                addPrint(newOrigin, "Already", (0.2, 0.6, 0.99));
 
-        if (!isOriginAccesibleFromOther(node.origin, newOrigin))
             continue;
+        }
 
-        index = addNode(newOrigin);
-        addEdge(nodeIndex, index);
-        addToOpenSet(index);
+        if (!isDebug)
+        {
+            index = addNode(newOrigin);
+            addToOpenSet(index);
+        }
     }
 }
 
-getNewOrigin(origin, direction)
+getNewOrigin(origin, direction, isDebug)
 {
     origin = origin + (0, 0, level.DISCOVER_OFFSET);
-    origin = getDirectionOrigin(origin, direction);
+    origin = getDirectionOrigin(origin, direction, isDebug);
     if (!isDefined(origin))
         return undefined;
 
-    origin = putOnTheGround(origin);
+    onGroundOrigin = putOnTheGround(origin);
+
+    if (isDebug)
+    {
+        if (isDefined(onGroundOrigin))
+            addLine(origin, onGroundOrigin, (0, 1, 0));
+        else
+            addLine(origin, origin - (0, 0, 100), (1, 0, 0));
+    }
+        
     return origin;
 }
 
@@ -150,6 +199,52 @@ drawNodesAndEdges()
             line(start, end, (0.9, 0.7, 0.6), false, 1);
         }
     }
+
+    if (isDefined(level.p.lines))
+    {
+        for (i = 0; i < level.p.lines.size; i += 1)
+        {
+            aLine = level.p.lines[i];
+            line(aLine.start, aLine.end, aLine.color, false, 1);
+        }
+    }
+
+    if (isDefined(level.p.prints))
+    {
+        for (i = 0; i < level.p.prints.size; i += 1)
+        {
+            aPrint = level.p.prints[i];
+            print3d(aPrint.origin, aPrint.text, aPrint.color, 1, 0.3, 1);
+        }
+    }
+}
+
+clearPrintsAndLines()
+{
+    level.p.lines = [];
+    level.p.prints = [];
+}
+
+addLine(start, end, color)
+{
+    aLine = spawnStruct();
+    aLine.start = start;
+    aLine.end = end;
+    aLine.color = color;
+
+    n = level.p.lines.size;
+    level.p.lines[n] = aLine;
+}
+
+addPrint(origin, text, color)
+{
+    aPrint = spawnStruct();
+    aPrint.origin = origin;
+    aPrint.text = text;
+    aPrint.color = color;
+
+    n = level.p.prints.size;
+    level.p.prints[n] = aLine;
 }
 
 getStartingSpawnPoint()
@@ -170,23 +265,37 @@ getPossibleNormalizedDirections()
     return directions;
 }
 
-getDirectionOrigin(origin, direction)
+getDirectionOrigin(origin, direction, isDebug)
 {
     directionOrigin = origin + maps\mp\_utility::vectorScale(direction, level.discovery_range);
 
     trace = bulletTrace(origin, directionOrigin, false, undefined);
     if (trace["fraction"] == 1)
+    {
+        if (isDebug)
+            addLine(origin, directionOrigin, (0, 1, 0));
+
         return directionOrigin;
+    }
 
     adjustedDirection = vectorNormalize(trace["position"] - origin);
     slopeAdjustedOrigin = origin + maps\mp\_utility::vectorScale(adjustedDirection, level.discovery_range);
     adjustedTrace = bulletTrace(origin, slopeAdjustedOrigin, false, undefined);
 
     if (adjustedTrace["fraction"] == 1)
+    {
+        if (isDebug)
+            addLine(origin, slopeAdjustedOrigin, (0, 0, 1));
+
         return slopeAdjustedOrigin;
+    }
 
     dist = distance(adjustedTrace["position"], origin);
     justBeforeWallOrigin = origin + maps\mp\_utility::vectorScale(adjustedDirection, dist - 1);
+
+    if (isDebug)
+        addLine(origin, slopeAdjustedOrigin, (0, 0.6, 1));
+
     return justBeforeWallOrigin;
 }
 
