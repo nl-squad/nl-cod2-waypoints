@@ -3,8 +3,9 @@ Main()
 {
     level.discovery_range = 50;
     level.DRAW_WAYPOINT_DISTNACE_SQUARED = 160 * 160;
+    level.DRAW_EDGE_DISTNACE_SQUARED = 1000 * 1000;
     level.DISCOVER_OFFSET = 30;
-    level.discoverNodesMaxIterations = 100000;
+    level.DISCOVERY_DEFAULT_MAX_ITERATIONS = 5000;
 
     resetGraph();
 
@@ -33,8 +34,14 @@ controlCvars()
         start = getCvar("start");
         if (start != "")
         {
-            startDiscovery();
             setCvar("start", "");
+            args = StrTok(start, " ");
+
+            maxIterationsCount = int(args[0]);
+            if (maxIterationsCount == 0)
+                maxIterationsCount = level.DISCOVERY_DEFAULT_MAX_ITERATIONS;
+
+            startDiscovery(maxIterationsCount);
         }
 
         debugNode = getCvar("debugNode");
@@ -56,27 +63,20 @@ initalizePlayer()
     level.p thread playerLoop();
 }
 
-startDiscovery()
+startDiscovery(maxIterationsCount)
 {
-    iPrintln("startDiscovery");
-    print("startDiscovery");
-    startTime = getTime();
     resetGraph();
-    startingSpawnPoint = getStartingSpawnPoint();
-    index = addNode(startingSpawnPoint.origin);
+
+    startOrigin = getStartingOrigin();
+    index = addNode(startOrigin);
     addToOpenSet(index);
 
-    discoverNodes();
+    discoverNodes(maxIterationsCount);
     iPrintln("Discovered nodes: ^2" + level.nodes.size);
     iPrintln("Iterations: ^2" +  level.discoverNodesIterations);
-
-    discoverEdges();
-
-    secondsPassed = (getTime() - startTime) / 1000;
-    iPrintln("Discovery took: ^2" + secondsPassed "s")
 }
 
-discoverNodes()
+discoverNodes(maxIterationsCount)
 {
     level.discoverNodesIterations = 1;
     discoverNodeIndex = getNextNodeIndexFromOpenSet();
@@ -84,46 +84,20 @@ discoverNodes()
     {
         discoverFromNode(discoverNodeIndex, false);
 
-        if (level.discoverNodesIterations == level.discoverNodesMaxIterations)
+        if (level.discoverNodesIterations == maxIterationsCount)
             break;
 
         level.discoverNodesIterations += 1;
         discoverNodeIndex = getNextNodeIndexFromOpenSet();
+
+        if (level.discoverNodesIterations % 100 == 0)
+        {
+            iPrintln("Done: ^2" + int(level.discoverNodesIterations * 100 / maxIterationsCount) + "%");
+            wait 0.1;
+        }
     }
 
     return level.discoverNodesIterations;
-}
-
-discoverEdges()
-{
-    for (i = 0; i < level.nodes.size; i += 1)
-    {
-        node = level.nodes[i];
-
-        for (j = 0; j < level.nodes.size; j += 1)
-        {
-            if (i == j)
-                continue;
-
-            otherNode = level.nodes[j];
-
-            dist = distanceSquared(node.origin, otherNode.origin);
-            if (dist > level.discovery_range * level.discovery_range * 2.25)
-                continue;
-
-            if (!isOriginAccesibleFromOther(node.origin, otherNode.origin))
-                continue;
-
-            addEdge(i, j);
-        }
-
-
-        if (i % 10 == 0)
-        {
-            iPrintln("Processed nodes: ^5" + int(100 * i / level.nodes.size) + "%");
-            print("Processed nodes: ^5" + int(100 * i / level.nodes.size) + "%");
-        }
-    }
 }
 
 discoverFromNode(nodeIndex, isDebug)
@@ -147,11 +121,14 @@ discoverFromNode(nodeIndex, isDebug)
             continue;
         }
 
-        if (!isDebug)
-        {
-            index = addNode(newOrigin);
-            addToOpenSet(index);
-        }
+        if (isDebug)
+            addPrint(newOrigin, "New", (0.2, 0.6, 0.99));
+
+        index = addNode(newOrigin);
+        checkAndAddEdge(nodeIndex, index);
+        checkAndAddEdge(index, nodeIndex);
+        checkEdges(index);
+        addToOpenSet(index);
     }
 }
 
@@ -171,8 +148,61 @@ getNewOrigin(origin, direction, isDebug)
         else
             addLine(origin, origin - (0, 0, 100), (1, 0, 0));
     }
-        
-    return origin;
+
+    return onGroundOrigin;
+}
+
+checkEdges(newNode)
+{
+    neighbours = buildNeighboursToCheck([], newNode, 1);
+
+    for (i = 0; i < neighbours.size; i += 1)
+    {
+        neighbour = neighbours[i];
+        if (neighbour == newNode)
+            continue;
+
+        checkAndAddEdge(neighbour, newNode);
+        checkAndAddEdge(newNode, neighbour);
+    }
+}
+
+buildNeighboursToCheck(neighbours, index, iteration)
+{
+    if (iteration > 3)
+        return neighbours;
+
+    edges = getEdgesFrom(index);
+    // printArray(edges, "edges of " + index, ::printEdge);
+    for (i = 0; i < edges.size; i += 1)
+        if (!isInArray(neighbours, edges[i].to))
+        {
+            neighbours[neighbours.size] = edges[i].to;
+            neighbours = buildNeighboursToCheck(neighbours, edges[i].to, iteration + 1);
+        }
+
+    return neighbours;
+}
+
+checkAndAddEdge(from, to)
+{
+    if (edgeExists(from, to))
+        return;
+
+    dist = distanceSquared(getNode(from).origin, getNode(to).origin);
+    if (dist > level.discovery_range * level.discovery_range * 2.01)
+        return;
+
+    addEdge(from, to);
+}
+
+isInArray(array, item)
+{
+    for (i = 0; i < array.size; i += 1)
+        if (array[i] == item)
+            return true;
+
+    return false;
 }
 
 playerLoop()
@@ -180,6 +210,31 @@ playerLoop()
     while (isDefined(self))
     {
         self drawNodesAndEdges();
+
+        if (self useButtonPressed())
+        {
+            origin = self getTargetOrigin();
+            nodeIndex = getClosestNodeIndex(origin);
+            
+            edges = getEdgesFrom(nodeIndex);
+            printArray(edges, "edges of " + nodeIndex, ::printEdge);
+
+            while (self useButtonPressed())
+                wait 0.05;
+        }
+
+        if (self meleeButtonPressed())
+        {
+            origin = self getTargetOrigin();
+            nodeIndex = getClosestNodeIndex(origin);
+            clearPrintsAndLines();
+            discoverFromNode(nodeIndex, true);
+            level.p.debugNode = nodeIndex;
+
+            while (self meleeButtonPressed())
+                wait 0.05;
+        }
+
         wait 0.05;
     }
 }
@@ -193,16 +248,25 @@ drawNodesAndEdges()
         if (dist < level.DRAW_WAYPOINT_DISTNACE_SQUARED)
             print3d(node.origin + (0, 0, 2), i, (1, 1, 1), 1, 0.3, 1);
 
+        if (dist > level.DRAW_EDGE_DISTNACE_SQUARED)
+            continue;
+
         edges = getEdgesFrom(i);
         if (!isDefined(edges))
             continue;
 
         for (j = 0; j < edges.size; j += 1)
         {
-            start = node.origin + (0, 0, 1);
+            isTwoWay = isTwoWayEdge(i, edges[j].to);
+            if (isTwoWay && edges[j].to > i) // This was already printed from other node
+                continue;
+
             endNode = getNode(edges[j].to);
-            end = endNode.origin + (0, 0, 1);
-            line(start, end, (0.9, 0.7, 0.6), false, 1);
+            color = (0.9, 0.7, 0.6);
+            if (!isTwoWay)
+                color = (0.2, 0.6, 0.99);
+
+            line(node.origin, endNode.origin, color, false, 1);
         }
     }
 
@@ -233,6 +297,9 @@ clearPrintsAndLines()
 
 addLine(start, end, color)
 {
+    if (!isDefined(level.p.lines))
+        level.p.lines = [];
+
     aLine = spawnStruct();
     aLine.start = start;
     aLine.end = end;
@@ -244,17 +311,23 @@ addLine(start, end, color)
 
 addPrint(origin, text, color)
 {
+    if (!isDefined(level.p.prints))
+        level.p.prints = [];
+
     aPrint = spawnStruct();
     aPrint.origin = origin;
     aPrint.text = text;
     aPrint.color = color;
 
     n = level.p.prints.size;
-    level.p.prints[n] = aLine;
+    level.p.prints[n] = aPrint;
 }
 
-getStartingSpawnPoint()
+getStartingOrigin()
 {
+    if (isDefined(level.p))
+        return level.p.origin;
+
 	spawnpointname = "mp_tdm_spawn";
 	spawnpoints = getEntArray(spawnpointname, "classname");
     return spawnpoints[ randomInt(spawnpoints.size) ];
@@ -300,7 +373,7 @@ getDirectionOrigin(origin, direction, isDebug)
     justBeforeWallOrigin = origin + maps\mp\_utility::vectorScale(adjustedDirection, dist - 1);
 
     if (isDebug)
-        addLine(origin, slopeAdjustedOrigin, (0, 0.6, 1));
+        addLine(origin, justBeforeWallOrigin, (0, 0.6, 1));
 
     return justBeforeWallOrigin;
 }
@@ -347,25 +420,66 @@ addNode(origin)
     return n;
 }
 
+getClosestNodeIndex(origin)
+{
+    closest = 0;
+    closestDist = distanceSquared(level.nodes[0].origin, origin);
+
+    for (i = 1; i < level.nodes.size; i += 1)
+    {
+        dist = distanceSquared(level.nodes[i].origin, origin);
+        if (dist < closestDist)
+        {
+            closest = i;
+            closestDist = dist;
+        }
+    }
+
+    return closest;
+}
+
 getNode(index)
 {
     return level.nodes[index];
+}
+
+edgeExists(from, to)
+{
+    if (!isDefined(level.edges[from + ""]))
+        return false;
+
+    edges = level.edges[from + ""];
+    for (i = 0; i < edges.size; i += 1)
+        if (edges[i].to == to)
+            return true;
+
+    return false;
+}
+
+isTwoWayEdge(from, to)
+{
+    return edgeExists(from, to) && edgeExists(to, from);
 }
 
 addEdge(from, to)
 {
     if (!isDefined(level.edges[from + ""]))
         level.edges[from + ""] = [];
+
+    dist = distance(getNode(from).origin, getNode(to).origin);
     
     edge = spawnStruct();
     edge.to = to;
-    edge.weight = distance(getNode(from).origin, getNode(to).origin);
+    edge.weight = dist;
 
     level.edges[from + ""][level.edges[from + ""].size] = edge;
 }
 
 getEdgesFrom(from)
 {
+    if (!isDefined(level.edges[from + ""]))
+        return [];
+
     return level.edges[from + ""];
 }
 
@@ -383,4 +497,49 @@ getNextNodeIndexFromOpenSet()
         return undefined;
 
     return level.openSet[index];
+}
+
+
+
+printArray(array, name, printItemFunction)
+{
+    if (array.size == 0)
+    {
+        iPrintLn(name + "(0) = [empty]");
+        return;
+    }
+
+    if (!isDefined(printItemFunction))
+        printItemFunction = ::printDefault;
+
+    message = name + "(" + array.size + ") = [";
+    for (i = 0; i < array.size; i += 1)
+        message += [[printItemFunction]](array[i]) + ", ";
+
+    message = GetSubStr(message, 0, message.size - 2) + "]";
+    iPrintln(message);
+}
+
+printDefault(item)
+{
+    return item;
+}
+
+printEdge(item)
+{
+    return "(to=" + item.to + ", w=" + item.weight + ")";
+}
+
+getTargetOrigin()
+{
+    startOrigin = self.origin + (0, 0, 60);
+    forward = anglesToForward(self getplayerangles());
+    forward = maps\mp\_utility::vectorScale(forward, 100000);
+    endOrigin = startOrigin + forward;
+    trace = bulletTrace(startOrigin, endOrigin, false, self);
+
+    if (trace["fraction"] <= 1 || trace["surfacetype"] == "default")
+        endOrigin = trace["position"];
+
+    return endOrigin;
 }
