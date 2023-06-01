@@ -5,6 +5,7 @@ ChunksCreate(chunkSize)
     chunks.chunkSize = chunkSize;
     chunks.elements = [];
     chunks.dictionary = [];
+    chunks.nextUid = 1;
 
     return chunks;
 }
@@ -12,6 +13,12 @@ ChunksCreate(chunkSize)
 ChunksInsert(chunks, element)
 {
     assert(isDefined(element.origin));
+
+    uid = chunks.nextUid;
+    chunks.nextUid += 1;
+
+    element.uid = uid;
+    chunks.elements[uid] = element;
 
     x = int(element.origin[0] / chunks.chunkSize) + "";
     y = int(element.origin[1] / chunks.chunkSize) + "";
@@ -26,11 +33,9 @@ ChunksInsert(chunks, element)
     if (!isDefined(chunks.dictionary[x][y][z]))
         chunks.dictionary[x][y][z] = [];
 
-    n = chunks.elements.size;
-    chunks.elements[n] = element;
-    chunks.dictionary[x][y][z][chunks.dictionary[x][y][z].size] = n;
+    chunks.dictionary[x][y][z][chunks.dictionary[x][y][z].size] = uid;
 
-    return n;
+    return uid;
 }
 
 ChunksGetAllElements(chunks)
@@ -38,9 +43,32 @@ ChunksGetAllElements(chunks)
     return chunks.elements;
 }
 
-ChunksGetElement(chunks, index)
+ChunksGetElement(chunks, uid)
 {
-    return chunks.elements[index];
+    return chunks.elements[uid];
+}
+
+ChunksDelete(chunks, uid)
+{
+    assert(isDefined(chunks.elements[uid]));
+
+    element = chunks.elements[uid];
+    x = int(element.origin[0] / chunks.chunkSize) + "";
+    y = int(element.origin[1] / chunks.chunkSize) + "";
+    z = int(element.origin[2] / chunks.chunkSize) + "";
+
+    assert(isDefined(chunks.dictionary[x]));
+    assert(isDefined(chunks.dictionary[x][y]));
+    assert(isDefined(chunks.dictionary[x][y][z]));
+
+    uids = chunks.dictionary[x][y][z];
+    newUids = [];
+    for (i = 0; i < uids.size; i++)
+        if (uids[i] != uid)
+            newUids[newUids.size] = uids[i];
+
+    chunks.dictionary[x][y][z] = newUids;
+    chunks.elements[uid] = undefined;
 }
 
 ChunksGetElementsInSquaredDistance(chunks, origin, squaredDistance)
