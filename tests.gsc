@@ -13,6 +13,10 @@ test(name, function)
 
 RunAll()
 {
+    LogPrint("1 Starting tests...\n");
+    Print("2 Starting tests...\n");
+    PrintLn("3 Starting tests...");
+
     if (!isDefined(level.tests))
     {
         iPrintln("^1No tests defined");
