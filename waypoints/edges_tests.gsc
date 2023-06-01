@@ -1,5 +1,5 @@
 #include blanco\tests;
-#include blanco\edges;
+#include blanco\waypoints\edges;
 
 Main()
 {
