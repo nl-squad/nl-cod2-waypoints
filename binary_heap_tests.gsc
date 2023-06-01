@@ -1,3 +1,4 @@
+#include blanco\tests;
 #include blanco\binary_heap;
 
 Main()

@@ -1,5 +1,5 @@
-#include blanco\chunks;
 #include blanco\tests;
+#include blanco\chunks;
 
 Main()
 {
