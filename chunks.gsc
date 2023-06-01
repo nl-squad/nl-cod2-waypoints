@@ -4,6 +4,7 @@ ChunksCreate(chunkSize)
     chunks = spawnStruct();
     chunks.chunkSize = chunkSize;
     chunks.elements = [];
+    chunks.dictionary = [];
 
     return chunks;
 }
@@ -16,16 +17,30 @@ ChunksInsert(chunks, element)
     y = int(element.origin[1] / chunks.chunkSize) + "";
     z = int(element.origin[2] / chunks.chunkSize) + "";
 
-    if (!isDefined(chunks.elements[x]))
-        chunks.elements[x] = [];
+    if (!isDefined(chunks.dictionary[x]))
+        chunks.dictionary[x] = [];
 
-    if (!isDefined(chunks.elements[x][y]))
-        chunks.elements[x][y] = [];
+    if (!isDefined(chunks.dictionary[x][y]))
+        chunks.dictionary[x][y] = [];
 
-    if (!isDefined(chunks.elements[x][y][z]))
-        chunks.elements[x][y][z] = [];
+    if (!isDefined(chunks.dictionary[x][y][z]))
+        chunks.dictionary[x][y][z] = [];
 
-    chunks.elements[x][y][z][chunks.elements[x][y][z].size] = element;
+    n = chunks.elements.size;
+    chunks.elements[n] = element;
+    chunks.dictionary[x][y][z][chunks.dictionary[x][y][z].size] = n;
+
+    return n;
+}
+
+ChunksGetAllElements(chunks)
+{
+    return chunks.elements;
+}
+
+ChunksGetElement(chunks, index)
+{
+    return chunks.elements[index];
 }
 
 ChunksGetElementsInSquaredDistance(chunks, origin, squaredDistance)
@@ -36,7 +51,7 @@ ChunksGetElementsInSquaredDistance(chunks, origin, squaredDistance)
     yOriginChunk = int(origin[1] / chunks.chunkSize);
     zOriginChunk = int(origin[2] / chunks.chunkSize);
 
-    elements = [];
+    indices = [];
 
     for (xOffset = -chunkRange; xOffset <= chunkRange; xOffset++)
     {
@@ -48,29 +63,32 @@ ChunksGetElementsInSquaredDistance(chunks, origin, squaredDistance)
                 y = (yOriginChunk + yOffset) + "";
                 z = (zOriginChunk + zOffset) + "";
 
-                chunkElements = getElementsFromChunk(chunks, x, y, z);
-                for (i = 0; i < chunkElements.size; i += 1)
-                    elements[elements.size] = chunkElements[i];
+                chunkIndices = getIndicesFromChunk(chunks, x, y, z);
+                for (i = 0; i < chunkIndices.size; i += 1)
+                    indices[indices.size] = chunkIndices[i];
             }
         }
     }
 
     filteredElements = [];
-    for (i = 0; i < elements.size; i += 1)
-        if (distanceSquared(origin, elements[i].origin) <= squaredDistance)
-            filteredElements[filteredElements.size] = elements[i];
+    for (i = 0; i < indices.size; i += 1)
+    {
+        element = chunks.elements[indices[i]];
+        if (distanceSquared(origin, element.origin) <= squaredDistance)
+            filteredElements[filteredElements.size] = element;
+    }
 
     return filteredElements;
 }
 
-getElementsFromChunk(chunks, x, y, z)
+getIndicesFromChunk(chunks, x, y, z)
 {
-    if (!isDefined(chunks.elements[x])
-        || !isDefined(chunks.elements[x][y])
-        || !isDefined(chunks.elements[x][y][z]))
+    if (!isDefined(chunks.dictionary[x])
+        || !isDefined(chunks.dictionary[x][y])
+        || !isDefined(chunks.dictionary[x][y][z]))
         return [];
 
-    return chunks.elements[x][y][z];
+    return chunks.dictionary[x][y][z];
 }
 
 ceil(num)
