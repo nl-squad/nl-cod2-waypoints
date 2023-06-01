@@ -1,6 +1,11 @@
 
 Main()
 {
+    blanco\waypoints\binary_heap_tests::Main();
+    blanco\waypoints\chunks_tests::Main();
+    blanco\waypoints\edges_tests::Main();
+    blanco\tests::RunAll();
+
     level.discovery_range = 50;
     level.DRAW_WAYPOINT_DISTNACE_SQUARED = 160 * 160;
     level.DRAW_EDGE_DISTNACE_SQUARED = 1000 * 1000;
