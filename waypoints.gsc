@@ -4,13 +4,16 @@ Main()
     blanco\waypoints\binary_heap_tests::Main();
     blanco\waypoints\chunks_tests::Main();
     blanco\waypoints\edges_tests::Main();
+    blanco\waypoints\hash_array_tests::Main();
     blanco\tests::RunAll();
 
     level.discovery_range = 50;
     level.DRAW_WAYPOINT_DISTNACE_SQUARED = 160 * 160;
-    level.DRAW_EDGE_DISTNACE_SQUARED = 1000 * 1000;
-    level.DISCOVER_OFFSET = 30;
+    level.DRAW_EDGE_DISTNACE_SQUARED = 800 * 800;
+    level.DISCOVER_OFFSET = 33;
+    level.DISCOVER_PRONE_MIN_HEIGHT = 32;
     level.DISCOVERY_DEFAULT_MAX_ITERATIONS = 5000;
+    level.MINIMUM_SPACE_BETWEEN_NODES_SQUARED = level.discovery_range * level.discovery_range / 2;
 
     resetGraph();
 
@@ -33,6 +36,7 @@ controlCvars()
 {
     setCvar("start", "");
     setCvar("debugNode", "");
+    setCvar("solve", "");
 
     while(true)
     {
@@ -57,6 +61,25 @@ controlCvars()
             setCvar("debugNode", "");
         }
 
+        solve = getCvar("solve");
+        if (solve != "")
+        {
+            setCvar("solve", "");
+            args = StrTok(solve, " ");
+            from = int(args[0]);
+            to = int(args[1]);
+
+            path = level.p thread blanco\astar::solve(from, to);
+            printArray(path, "^2path");
+
+            last = path[0];
+            for (i = 1; i < path.size; i += 1)
+            {
+                setEdgeIsSolution(last, path[i], true);
+                last = path[i];
+            }
+        }
+
         wait 0.1;
     }
 }
@@ -73,7 +96,7 @@ startDiscovery(maxIterationsCount)
     resetGraph();
 
     startOrigin = getStartingOrigin();
-    index = addNode(startOrigin);
+    index = addNode(startOrigin, -1);
     addToOpenSet(index);
 
     discoverNodes(maxIterationsCount);
@@ -118,8 +141,12 @@ discoverFromNode(nodeIndex, isDebug)
         if (!isDefined(newOrigin))
             continue;
 
-        if (isOriginAlreadyInNodes(newOrigin))
+        existingIndex = getOriginNodeIndex(newOrigin);
+        if (isDefined(existingIndex))
         {
+            checkAndAddEdge(nodeIndex, existingIndex);
+            checkAndAddEdge(existingIndex, nodeIndex);
+
             if (isDebug)
                 addPrint(newOrigin, "Already", (0.2, 0.6, 0.99));
 
@@ -129,10 +156,10 @@ discoverFromNode(nodeIndex, isDebug)
         if (isDebug)
             addPrint(newOrigin, "New", (0.2, 0.6, 0.99));
 
-        index = addNode(newOrigin);
+        index = addNode(newOrigin, nodeIndex);
         checkAndAddEdge(nodeIndex, index);
         checkAndAddEdge(index, nodeIndex);
-        checkEdges(index);
+        // checkEdges(index);
         addToOpenSet(index);
     }
 }
@@ -157,45 +184,20 @@ getNewOrigin(origin, direction, isDebug)
     return onGroundOrigin;
 }
 
-checkEdges(newNode)
-{
-    neighbours = buildNeighboursToCheck([], newNode, 1);
-
-    for (i = 0; i < neighbours.size; i += 1)
-    {
-        neighbour = neighbours[i];
-        if (neighbour == newNode)
-            continue;
-
-        checkAndAddEdge(neighbour, newNode);
-        checkAndAddEdge(newNode, neighbour);
-    }
-}
-
-buildNeighboursToCheck(neighbours, index, iteration)
-{
-    if (iteration > 3)
-        return neighbours;
-
-    edges = getEdgesFrom(index);
-    // printArray(edges, "edges of " + index, ::printEdge);
-    for (i = 0; i < edges.size; i += 1)
-        if (!isInArray(neighbours, edges[i].to))
-        {
-            neighbours[neighbours.size] = edges[i].to;
-            neighbours = buildNeighboursToCheck(neighbours, edges[i].to, iteration + 1);
-        }
-
-    return neighbours;
-}
-
 checkAndAddEdge(from, to)
 {
     if (edgeExists(from, to))
         return;
+    
+    start = getNode(from).origin + (0, 0, level.DISCOVER_PRONE_MIN_HEIGHT);
+    end = getNode(to).origin + (0, 0, level.DISCOVER_PRONE_MIN_HEIGHT);
 
-    dist = distanceSquared(getNode(from).origin, getNode(to).origin);
-    if (dist > level.discovery_range * level.discovery_range * 2.01)
+    dist = distanceSquared(start, end);
+    if (dist > level.discovery_range * level.discovery_range * 1.5 * 1.5)
+        return;
+
+    trace = bulletTrace(start, end, false, undefined);
+    if (trace["fraction"] < 1)
         return;
 
     addEdge(from, to);
@@ -235,6 +237,7 @@ playerLoop()
             clearPrintsAndLines();
             discoverFromNode(nodeIndex, true);
             level.p.debugNode = nodeIndex;
+            iPrintln("^5" + level.nodes[nodeIndex].from);
 
             while (self meleeButtonPressed())
                 wait 0.05;
@@ -250,8 +253,13 @@ drawNodesAndEdges()
     {
         node = level.nodes[i];
         dist = distanceSquared(self.origin, node.origin);
+
+        color = (1, 1, 1);
+        if (isDefined(node.color))
+            color = node.color;
+
         if (dist < level.DRAW_WAYPOINT_DISTNACE_SQUARED)
-            print3d(node.origin + (0, 0, 2), i, (1, 1, 1), 1, 0.3, 1);
+            print3d(node.origin + (0, 0, 2), i, color, 1, 0.3, 1);
 
         if (dist > level.DRAW_EDGE_DISTNACE_SQUARED)
             continue;
@@ -270,6 +278,9 @@ drawNodesAndEdges()
             color = (0.9, 0.7, 0.6);
             if (!isTwoWay)
                 color = (0.2, 0.6, 0.99);
+
+            if (isDefined(edges[j].isSolution))
+                color = (0, 0.9, 0.2);
 
             line(node.origin, endNode.origin, color, false, 1);
         }
@@ -392,16 +403,16 @@ putOnTheGround(origin)
     return undefined;
 }
 
-isOriginAlreadyInNodes(origin)
+getOriginNodeIndex(origin)
 {
     for (i = 0; i < level.nodes.size; i += 1)
     {
         dist = distanceSquared(origin, level.nodes[i].origin);
-        if (dist < level.discovery_range * level.discovery_range / 4)
-            return true;
+        if (dist <= level.MINIMUM_SPACE_BETWEEN_NODES_SQUARED)
+            return i;
     }
 
-    return false;
+    return undefined;
 }
 
 isOriginAccesibleFromOther(fromOrigin, toOrigin)
@@ -414,10 +425,11 @@ isOriginAccesibleFromOther(fromOrigin, toOrigin)
     return false;
 }
 
-addNode(origin)
+addNode(origin, from)
 {
     node = spawnStruct();
     node.origin = origin;
+    node.from = from;
 
     n = level.nodes.size;
     level.nodes[n] = node;
@@ -446,6 +458,11 @@ getClosestNodeIndex(origin)
 getNode(index)
 {
     return level.nodes[index];
+}
+
+setNodeColor(index, value)
+{
+    getNode(index).color = value;
 }
 
 edgeExists(from, to)
@@ -478,6 +495,27 @@ addEdge(from, to)
     edge.weight = dist;
 
     level.edges[from + ""][level.edges[from + ""].size] = edge;
+}
+
+setEdgeIsSolution(from, to, value)
+{
+    if (from < to)
+    {
+        tmp = from;
+        from = to;
+        to = tmp;
+    }
+
+    if (!isDefined(level.edges[from + ""]))
+        return;
+
+    edge = undefined;
+    edges = level.edges[from + ""];
+    for (i = 0; i < edges.size; i += 1)
+        if (edges[i].to == to)
+            edge = edges[i];
+
+    edge.isSolution = value;
 }
 
 getEdgesFrom(from)
