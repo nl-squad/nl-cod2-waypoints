@@ -97,7 +97,7 @@ Callback_StartGameType()
 	thread maps\mp\gametypes\_friendicons::init();
 	thread maps\mp\gametypes\_spectating::init();
 	thread maps\mp\gametypes\_grenadeindicators::init();
-	thread blanco\waypoints::Main();
+	thread blanco\waypoints\core::Main();
 
 	level.xenon = (getcvar("xenonGame") == "true");
 	if(level.xenon) // Xenon only
