@@ -81,11 +81,11 @@ ChunksGetElementsInSquaredDistance(chunks, origin, squaredDistance)
 
     indices = [];
 
-    for (xOffset = -chunkRange; xOffset <= chunkRange; xOffset++)
+    for (xOffset = -1 * chunkRange; xOffset <= chunkRange; xOffset++)
     {
-        for (yOffset = -chunkRange; yOffset <= chunkRange; yOffset++)
+        for (yOffset = -1 * chunkRange; yOffset <= chunkRange; yOffset++)
         {
-            for (zOffset = -chunkRange; zOffset <= chunkRange; zOffset++)
+            for (zOffset = -1 * chunkRange; zOffset <= chunkRange; zOffset++)
             {
                 x = (xOriginChunk + xOffset) + "";
                 y = (yOriginChunk + yOffset) + "";
@@ -121,8 +121,9 @@ getIndicesFromChunk(chunks, x, y, z)
 
 ceil(num)
 {
-    if (num == int(num))
-        return num;
+    floor = int(num);
+    if (num == floor)
+        return floor;
 
-    return int(num) + 1;
+    return floor + 1;
 }

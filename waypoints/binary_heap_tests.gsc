@@ -7,6 +7,7 @@ Main()
     test("HeapInsert__ShouldIncreaseHeapSize", ::HeapInsert__ShouldIncreaseHeapSize);
     test("HeapPop__ShouldReturnSmallestElementAndReduceHeapSize", ::HeapPop__ShouldReturnSmallestElementAndReduceHeapSize);
     test("HeapPop__ShouldHandleStructs", ::HeapPop__ShouldHandleStructs);
+    test("HeapPop__ResultsInSortedItems", ::HeapPop__ResultsInSortedItems);
 }
 
 HeapCreate__ShouldCreateEmptyHeap()
@@ -55,6 +56,29 @@ HeapPop__ShouldHandleStructs()
     assert(minElement.value == 0);
 }
 
+HeapPop__ResultsInSortedItems()
+{
+    heap = HeapCreate(::compareFunction);
+    HeapInsert(heap, 4);
+    HeapInsert(heap, 8);
+    HeapInsert(heap, 2);
+    HeapInsert(heap, 1);
+    HeapInsert(heap, 7);
+    HeapInsert(heap, 6);
+    HeapInsert(heap, 3);
+    HeapInsert(heap, 5);
+    HeapInsert(heap, 9);
+
+    assert(HeapPop(heap) == 1);
+    assert(HeapPop(heap) == 2);
+    assert(HeapPop(heap) == 3);
+    assert(HeapPop(heap) == 4);
+    assert(HeapPop(heap) == 5);
+    assert(HeapPop(heap) == 6);
+    assert(HeapPop(heap) == 7);
+    assert(HeapPop(heap) == 8);
+    assert(HeapPop(heap) == 9);
+}
 
 compareFunction(a, b)
 {

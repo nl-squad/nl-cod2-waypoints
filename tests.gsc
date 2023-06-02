@@ -1,7 +1,7 @@
 
 test(name, function)
 {
-    if (isDefined(level.tests))
+    if (!isDefined(level.tests))
         level.tests = [];
 
     struct = spawnStruct();
@@ -13,21 +13,21 @@ test(name, function)
 
 RunAll()
 {
-    LogPrint("1 Starting tests...\n");
-    Print("2 Starting tests...\n");
-    PrintLn("3 Starting tests...");
+    PrintLn("---");
+    PrintLn("Starting tests...");
 
     if (!isDefined(level.tests))
     {
-        iPrintln("^1No tests defined");
+        Println("Warning: No tests defined");
         return;
     }
 
     for (i = 0; i < level.tests.size; i += 1)
     {
         [[ level.tests[i].function ]]();
-        iPrintln(level.tests[i].name + "... ok");
+        Println(level.tests[i].name + "... ok");
     }
 
-    iPrintln("Run " + level.tests.size + " tests");
+    Println("Performed " + level.tests.size + " tests");
+    PrintLn("---");
 }

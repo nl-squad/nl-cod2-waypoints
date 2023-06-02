@@ -1,13 +1,13 @@
 #include blanco\tests;
-#include blanco\hasharray;
+#include blanco\waypoints\hash_array;
 
 Main()
 {
     test("HashArrayCreate__ShouldCreateEmptyHashArray", ::HashArrayCreate__ShouldCreateEmptyHashArray);
     test("HashArrayInsert__ShouldInsertElementIntoHashArray", ::HashArrayInsert__ShouldInsertElementIntoHashArray);
-    test("HashArrayGet__ShouldGetInsertedElement", ::HashArrayGet__ShouldGetInsertedElement);
     test("HashArrayDelete__ShouldDeleteElement", ::HashArrayDelete__ShouldDeleteElement);
     test("HashArrayGetNext__ShouldIterateThroughAllElements", ::HashArrayGetNext__ShouldIterateThroughAllElements);
+    test("HashArrayGetNext__ShouldIterateThroughAllElementsIgnoringLastDeleted", ::HashArrayGetNext__ShouldIterateThroughAllElementsIgnoringLastDeleted);
 }
 
 HashArrayCreate__ShouldCreateEmptyHashArray()
@@ -50,7 +50,7 @@ HashArrayGetNext__ShouldIterateThroughAllElements()
     assert(iterator.element == "element3");
 }
 
-HashArrayGetNext__ShouldIterateThroughAllElements()
+HashArrayGetNext__ShouldIterateThroughAllElementsIgnoringLastDeleted()
 {
     hashArray = HashArrayCreate();
     HashArrayInsert(hashArray, "element1");

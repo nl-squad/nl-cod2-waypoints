@@ -23,7 +23,7 @@ EdgesInsert(edges, from, to, weight, type)
     edgeStruct.weight = weight;
     edgeStruct.type = type;
 
-    assert(!isDefined(edges.elements[from].to[to]));
+    assert(!isDefined(edges.elements[from].dictionary[to]));
 
     n = edges.elements[from].list.size;
     edges.elements[from].list[n] = edgeStruct;

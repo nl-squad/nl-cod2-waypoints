@@ -14,15 +14,15 @@ Main()
 ChunksCreate__ShouldCreateEmptyChunks()
 {
     chunks = ChunksCreate(100);
-    assert(chunks.nextUid == 0);
+    assert(chunks.nextUid == 1);
+    assert(chunks.elements.size == 0);
+    assert(chunks.dictionary.size == 0);
 }
 
 ChunksInsert__ShouldInsertElementIntoChunks()
 {
     chunks = ChunksCreate(100);
-    element = spawnStruct();
-    element.origin = [200, 300, 400];
-    uid = ChunksInsert(chunks, element);
+    uid = ChunksInsert(chunks, createStructWithOrigin(200, 300, 400));
 
     assert(isDefined(ChunksGetElement(chunks, uid)));
 }
@@ -39,8 +39,8 @@ ChunksDelete__ShouldStillMakeItPossibleToGetAllElements()
     elements = ChunksGetAllElements(chunks);
 
     assert(elements.size == 2);
-    assert(elements[0].uid = id2);
-    assert(elements[1].uid = id3);
+    assert(elements[0].uid == id2);
+    assert(elements[1].uid == id3);
 }
 
 ChunksDeleteAndInsert__ShouldNotChangeIDsOfOtherElements()
@@ -72,7 +72,7 @@ ChunksGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
     element2 = createStructWithOrigin(300, 400, 500);
     uid2 = ChunksInsert(chunks, element2);
     
-    elements = ChunksGetElementsInSquaredDistance(chunks, [250, 350, 450], 20000);
+    elements = ChunksGetElementsInSquaredDistance(chunks, (250, 350, 450), 20000);
 
     assert(elements.size == 2);
     assert(isDefined(ChunksGetElement(chunks, uid1)));
@@ -91,9 +91,9 @@ ChunksGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDist
     ChunksInsert(chunks, createStructWithOrigin(-5, 0, 0));
     ChunksInsert(chunks, createStructWithOrigin(-5.1, 0, 0));
 
-    elements = ChunksGetElementsInSquaredDistance(chunks, [0, 0, 0], 100);
+    elements = ChunksGetElementsInSquaredDistance(chunks, (5, 0, 0), 100);
 
-    assert(elements.size == 5);
+    assert(elements.size == 6);
 }
 
 ChunksGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfChunks()
@@ -103,7 +103,7 @@ ChunksGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfChunks()
     ChunksInsert(chunks, createStructWithOrigin(30, 20, 30));
     ChunksInsert(chunks, createStructWithOrigin(0, 0, 0));
 
-    elements = ChunksGetElementsInSquaredDistance(chunks, [20, 20, 30], 100);
+    elements = ChunksGetElementsInSquaredDistance(chunks, (20, 20, 30), 100);
 
     assert(elements.size == 2);
 }
@@ -111,6 +111,6 @@ ChunksGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfChunks()
 createStructWithOrigin(x, y, z)
 {
     struct = spawnStruct();
-    struct.origin = [x, y, z];
+    struct.origin = (x, y, z);
     return struct;
 }
