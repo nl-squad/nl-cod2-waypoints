@@ -27,16 +27,3 @@ printEdge(item)
     return "(to=" + item.to + ", w=" + item.weight + ")";
 }
 
-getTargetOrigin()
-{
-    startOrigin = self.origin + (0, 0, 60);
-    forward = anglesToForward(self getplayerangles());
-    forward = maps\mp\_utility::vectorScale(forward, 100000);
-    endOrigin = startOrigin + forward;
-    trace = bulletTrace(startOrigin, endOrigin, false, self);
-
-    if (trace["fraction"] <= 1 || trace["surfacetype"] == "default")
-        endOrigin = trace["position"];
-
-    return endOrigin;
-}
