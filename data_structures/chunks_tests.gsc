@@ -1,5 +1,5 @@
 #include blanco\tests;
-#include blanco\waypoints\chunks;
+#include blanco\data_structures\chunks;
 
 Main()
 {

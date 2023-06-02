@@ -1,5 +1,5 @@
 #include blanco\tests;
-#include blanco\waypoints\binary_heap;
+#include blanco\data_structures\binary_heap;
 
 Main()
 {

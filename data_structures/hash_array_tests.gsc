@@ -1,5 +1,5 @@
 #include blanco\tests;
-#include blanco\waypoints\hash_array;
+#include blanco\data_structures\hash_array;
 
 Main()
 {

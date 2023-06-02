@@ -20,6 +20,7 @@ EdgesInsert(edges, from, to, weight, type)
     }
 
     edgeStruct = spawnStruct();
+    edgeStruct.to = to;
     edgeStruct.weight = weight;
     edgeStruct.type = type;
 
