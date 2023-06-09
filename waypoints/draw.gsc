@@ -31,11 +31,15 @@ drawNodesAndEdges()
     {
         node = nodes[i];
 
+        color = (1, 1, 1);
+        if (isDefined(self.targetedNode) && self.targetedNode == node.uid)
+            color = (0, 1, 0.5);
+
         dist = distanceSquared(searchOrigin, node.origin);
         if (dist < level.DRAW_NODE_DISTNACE_SQUARED)
-            print3d(node.origin + (0, 0, 2), i, (1, 1, 1), 1, 0.3, 1);
+            print3d(node.origin + (0, 0, 2), i, color, 1, 0.3, 1);
 
-        edges = EdgesGetFrom(level.edges, node.index);
+        edges = EdgesGetFrom(level.edges, node.uid);
         for (j = 0; j < edges.size; j += 1)
         {
             if (edges[j].to < node.uid)

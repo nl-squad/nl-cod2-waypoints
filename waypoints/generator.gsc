@@ -1,5 +1,11 @@
 Main()
 {
+    level.GRID_SIZE = 50;
+    level.EDGE_STAND = 1;
+    level.EDGE_CROUCH = 2;
+    level.EDGE_PRONE = 3;
+    level.EDGE_JUMP = 4;
+    level.EDGE_LADDER = 4;
 
     level.discovery_range = 50;
     level.DISCOVER_OFFSET = 33;

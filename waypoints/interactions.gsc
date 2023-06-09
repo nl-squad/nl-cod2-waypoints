@@ -2,8 +2,7 @@
 
 Main()
 {
-    level.DRAW_EDGE_DISTNACE_SQUARED = 600 * 600;
-    level.DRAW_NODE_DISTNACE_SQUARED = 160 * 160;
+    level.SELECT_NODE_SQUARED_DISTANCE = 16 * 16; // TODO
 
     while (true)
     {
@@ -16,26 +15,44 @@ playerInteractionsLoop()
 {
     while (isDefined(self))
     {
-        if (self useButtonPressed())
+        origin = self getTargetOrigin();
+        node = self getNodeInSelectRange(origin);
+        edge = self getEdgeInSelectRange(origin);
+
+        if (isDefined(node))
+            self.targetedNode = node.uid;
+
+        if (self useButtonPressed() && !isDefined(node))
         {
-            origin = self getTargetOrigin();
-            nodeIndex = getClosestNodeIndex(origin);
-            
-            edges = getEdgesFrom(nodeIndex);
-            printArray(edges, "edges of " + nodeIndex, ::printEdge);
+            insertNodeInteraction();
 
             while (self useButtonPressed())
                 wait 0.05;
         }
 
-        if (self meleeButtonPressed())
+        if (self useButtonPress() && isDefined(node))
         {
+            startDrawingEdgeInteraction();
+
+            while (self useButtonPressed(node))
+                wait 0.05;
+
             origin = self getTargetOrigin();
-            nodeIndex = getClosestNodeIndex(origin);
-            clearPrintsAndLines();
-            discoverFromNode(nodeIndex, true);
-            level.p.debugNode = nodeIndex;
-            iPrintln("^5" + level.nodes[nodeIndex].from);
+            node = self getNodeInSelectRange(origin);
+            endDrawingEdgeInteraction();
+        }
+
+        if (self meleeButtonPressed() && isDefined(node))
+        {
+            removeNodeInteraction(node);
+
+            while (self meleeButtonPressed())
+                wait 0.05;
+        }
+
+        if (self meleeButtonPressed() && isDefined(edge))
+        {
+            removeEdgeInteraction(node);
 
             while (self meleeButtonPressed())
                 wait 0.05;
@@ -57,4 +74,72 @@ getTargetOrigin()
         endOrigin = trace["position"];
 
     return endOrigin;
+}
+
+getNodeInSelectRange(origin)
+{
+    nodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.SELECT_NODE_SQUARED_DISTANCE);
+
+    if (nodes.size > 0)
+        return nodes[0];
+}
+
+getEdgeInSelectRange(origin)
+{
+    closestEdge = undefined;
+    closestEdgeDistance = -1;
+
+    nodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.GRID_SIZE * level.GRID_SIZE);
+    for (i = 0; i < nodes.size; i += 1)
+    {
+        node = nodes[i];
+        edges = EdgesGetFrom(level.edges, node.uid);
+
+        for (j = 0; j < edges.size; j += 1)
+        {
+            otherNode = NodesGetElement(nodes, edges[j].to);
+            midOrigin = waypoints\draw::calculateMidOrigin(node.origin, otherNode.origin);
+            dist = distanceSquared(midOrigin, origin);
+
+            if (!isDefined(closestEdge) || dist < closestEdgeDistance)
+            {
+                closestEdge = edges[j];
+                closestEdgeDistance = dist;
+            }
+        }
+    }
+
+    return closestEdge;
+}
+
+insertNodeInteraction()
+{
+    node = spawnStruct();
+    node.origin = self getTargetOrigin();
+
+    NodesInsert(level.nodes, node);
+}
+
+removeNodeInteraction(node)
+{
+    NodesDelete(level.nodes, node.uid);
+}
+
+removeEdgeInteraction(edge)
+{
+    EdgesDelete(level.edges, edge.from, edge.to);
+}
+
+startDrawingEdgeInteraction(node)
+{
+    self.drawEdgeStartingNode = node;
+}
+
+endDrawingEdgeInteraction(node)
+{
+    if (node.uid == self.drawEdgeStartingNode.uid)
+        self iPrintln("^1Can't add edge from node to the same node");
+
+    weight = distanceSquared(self.drawEdgeStartingNode.origin, node.orgin);
+    EdgesInsert(level.edges, self.drawEdgeStartingNode.uid, node.uid, weight, level.EDGE_STAND);
 }

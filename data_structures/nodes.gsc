@@ -1,8 +1,8 @@
 
-NodesCreate(nodeSize)
+NodesCreate(chunkSize)
 {
     nodes = spawnStruct();
-    nodes.nodeSize = nodeSize;
+    nodes.chunkSize = chunkSize;
     nodes.elements = [];
     nodes.dictionary = [];
     nodes.nextUid = 1;
@@ -20,9 +20,9 @@ NodesInsert(nodes, element)
     element.uid = uid;
     nodes.elements[uid] = element;
 
-    x = int(element.origin[0] / nodes.nodeSize) + "";
-    y = int(element.origin[1] / nodes.nodeSize) + "";
-    z = int(element.origin[2] / nodes.nodeSize) + "";
+    x = int(element.origin[0] / nodes.chunkSize) + "";
+    y = int(element.origin[1] / nodes.chunkSize) + "";
+    z = int(element.origin[2] / nodes.chunkSize) + "";
 
     if (!isDefined(nodes.dictionary[x]))
         nodes.dictionary[x] = [];
@@ -53,9 +53,9 @@ NodesDelete(nodes, uid)
     assert(isDefined(nodes.elements[uid]));
 
     element = nodes.elements[uid];
-    x = int(element.origin[0] / nodes.nodeSize) + "";
-    y = int(element.origin[1] / nodes.nodeSize) + "";
-    z = int(element.origin[2] / nodes.nodeSize) + "";
+    x = int(element.origin[0] / nodes.chunkSize) + "";
+    y = int(element.origin[1] / nodes.chunkSize) + "";
+    z = int(element.origin[2] / nodes.chunkSize) + "";
 
     assert(isDefined(nodes.dictionary[x]));
     assert(isDefined(nodes.dictionary[x][y]));
@@ -71,13 +71,18 @@ NodesDelete(nodes, uid)
     nodes.elements[uid] = undefined;
 }
 
+NodesAlreadyHasNodeInSquaredDistance(nodes, origin, squaredDistance)
+{
+    return NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance) > 0;
+}
+
 NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
 {
-    nodeRange = ceil(squaredDistance / (nodes.nodeSize * nodes.nodeSize));
+    nodeRange = ceil(squaredDistance / (nodes.chunkSize * nodes.chunkSize));
 
-    xOriginNode = int(origin[0] / nodes.nodeSize);
-    yOriginNode = int(origin[1] / nodes.nodeSize);
-    zOriginNode = int(origin[2] / nodes.nodeSize);
+    xOriginNode = int(origin[0] / nodes.chunkSize);
+    yOriginNode = int(origin[1] / nodes.chunkSize);
+    zOriginNode = int(origin[2] / nodes.chunkSize);
 
     indices = [];
 
