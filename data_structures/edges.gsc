@@ -12,6 +12,9 @@ EdgesInsert(edges, fromUid, toUid, weight, type)
     from = fromUid + "";
     to = toUid + "";
 
+    printLn("Inserted edge from " + from + " to " + to);
+    iprintLn("Inserted edge from " + from + " to " + to);
+
     if (!isDefined(edges.elements[from]))
     {
         edges.elements[from] = spawnStruct();
@@ -75,7 +78,8 @@ EdgesGet(edges, from, to)
     from = from + "";
     to = to + "";
 
-    assert(isDefined(edges.elements[from].dictionary[to]));
+    if (!isDefined(edges.elements[from]) || !isDefined(edges.elements[from].dictionary[to]))
+        return [];
 
     index = edges.elements[from].dictionary[to];
     return edges.elements[from].list[index];

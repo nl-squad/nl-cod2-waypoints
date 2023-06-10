@@ -15,6 +15,9 @@ NodesInsert(nodes, origin)
     uid = nodes.nextUid;
     nodes.nextUid += 1;
 
+    printLn("Inserted node " + uid + " at origin " + origin);
+    iprintLn("Inserted node " + uid + " at origin " + origin);
+
     element = spawnStruct();
     element.origin = origin;
     element.uid = uid;
