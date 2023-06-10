@@ -10,13 +10,13 @@ NodesCreate(chunkSize)
     return nodes;
 }
 
-NodesInsert(nodes, element)
+NodesInsert(nodes, origin)
 {
-    assert(isDefined(element.origin));
-
     uid = nodes.nextUid;
     nodes.nextUid += 1;
 
+    element = spawnStruct();
+    element.origin = origin;
     element.uid = uid;
     nodes.elements[uid] = element;
 
@@ -73,7 +73,7 @@ NodesDelete(nodes, uid)
 
 NodesAlreadyHasNodeInSquaredDistance(nodes, origin, squaredDistance)
 {
-    return NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance) > 0;
+    return NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance).size > 0;
 }
 
 NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)

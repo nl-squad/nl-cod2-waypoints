@@ -37,7 +37,8 @@ commandsLoop()
     }
 }
 
-start()
+start(args)
 {
-    iPrintln("hello world");
+    players = getentarray("player", "classname");
+    thread blanco\waypoints\generator::Start(players[0].origin);
 }

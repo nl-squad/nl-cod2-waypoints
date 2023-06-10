@@ -8,7 +8,6 @@ Main()
     test("EdgesGetFrom__ShouldReturnInsertedEdges", ::EdgesGetFrom__ShouldReturnInsertedEdges);
     test("EdgesDelete__ShouldRemoveEdgeFromEdges", ::EdgesDelete__ShouldRemoveEdgeFromEdges);
     test("EdgesExists__ShouldCheckIfEdgeExists", ::EdgesExists__ShouldCheckIfEdgeExists);
-    test("EdgesIsTwoWay__ShouldCheckIfEdgeIsTwoWay", ::EdgesIsTwoWay__ShouldCheckIfEdgeIsTwoWay);
     test("EdgesGet__ShouldReturnInsertedEdge", ::EdgesGet__ShouldReturnInsertedEdge);
 }
 
@@ -53,15 +52,6 @@ EdgesExists__ShouldCheckIfEdgeExists()
     EdgesInsert(edges, 0, 1, 1, "edgeType");
 
     assert(EdgesExists(edges, 0, 1));
-}
-
-EdgesIsTwoWay__ShouldCheckIfEdgeIsTwoWay()
-{
-    edges = EdgesCreate();
-    EdgesInsert(edges, 0, 1, 1, "edgeType");
-    EdgesInsert(edges, 1, 0, 1, "edgeType");
-
-    assert(EdgesIsTwoWay(edges, 0, 1));
 }
 
 EdgesGet__ShouldReturnInsertedEdge()

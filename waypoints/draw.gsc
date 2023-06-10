@@ -1,7 +1,10 @@
+#include blanco\data_structures\edges;
+#include blanco\data_structures\nodes;
+
 Main()
 {
-    level.DRAW_EDGE_DISTNACE_SQUARED = 600 * 600;
-    level.DRAW_NODE_DISTNACE_SQUARED = 160 * 160;
+    level.DRAW_EDGE_DISTNACE_SQUARED = 100 * 100;
+    level.DRAW_NODE_DISTNACE_SQUARED = 100 * 100;
 
     while (true)
     {
@@ -17,7 +20,7 @@ playerDrawingLoop()
     while (isDefined(self))
     {
         self drawNodesAndEdges();
-        wait 0.05;
+        wait 2;
     }
 }
 

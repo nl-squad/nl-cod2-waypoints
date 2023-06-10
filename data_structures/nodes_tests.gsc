@@ -22,7 +22,7 @@ NodesCreate__ShouldCreateEmptyNodes()
 NodesInsert__ShouldInsertElementIntoNodes()
 {
     nodes = NodesCreate(100);
-    uid = NodesInsert(nodes, createStructWithOrigin(200, 300, 400));
+    uid = NodesInsert(nodes, (200, 300, 400));
 
     assert(isDefined(NodesGetElement(nodes, uid)));
 }
@@ -30,9 +30,9 @@ NodesInsert__ShouldInsertElementIntoNodes()
 NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 {
     nodes = NodesCreate(100);
-    id1 = NodesInsert(nodes, createStructWithOrigin(200, 300, 400));
-    id2 = NodesInsert(nodes, createStructWithOrigin(100, 300, 400));
-    id3 = NodesInsert(nodes, createStructWithOrigin(300, 300, 400));
+    id1 = NodesInsert(nodes, (200, 300, 400));
+    id2 = NodesInsert(nodes, (100, 300, 400));
+    id3 = NodesInsert(nodes, (300, 300, 400));
 
     NodesDelete(nodes, id1);
 
@@ -46,31 +46,24 @@ NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements()
 {
     nodes = NodesCreate(100);
-    element1 = createStructWithOrigin(200, 300, 400);
-    id1 = NodesInsert(nodes, element1);
-
-    element2 = createStructWithOrigin(300, 400, 500);
-    id2 = NodesInsert(nodes, element2);
+    id1 = NodesInsert(nodes, (200, 300, 400));
+    id2 = NodesInsert(nodes, (300, 400, 500));
 
     NodesDelete(nodes, id1);
     
-    assert(NodesGetElement(nodes, id2) == element2);
+    assert(NodesGetElement(nodes, id2).origin == (300, 400, 500));
 
-    element3 = createStructWithOrigin(500, 600, 700);
-    id3 = NodesInsert(nodes, element3);
+    id3 = NodesInsert(nodes, (500, 600, 700));
 
     assert(id3 != id1);
-    assert(NodesGetElement(nodes, id3) == element3);
+    assert(NodesGetElement(nodes, id3).origin == (500, 600, 700));
 }
 
 NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
 {
     nodes = NodesCreate(100);
-    element1 = createStructWithOrigin(200, 300, 400);
-    uid1 = NodesInsert(nodes, element1);
-
-    element2 = createStructWithOrigin(300, 400, 500);
-    uid2 = NodesInsert(nodes, element2);
+    uid1 = NodesInsert(nodes, (200, 300, 400));
+    uid2 = NodesInsert(nodes, (300, 400, 500));
     
     elements = NodesGetElementsInSquaredDistance(nodes, (250, 350, 450), 20000);
 
@@ -82,14 +75,14 @@ NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
 NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance()
 {
     nodes = NodesCreate(10);
-    NodesInsert(nodes, createStructWithOrigin(5, 0, 0));
-    NodesInsert(nodes, createStructWithOrigin(5, 0, 1));
-    NodesInsert(nodes, createStructWithOrigin(5, 10, 0));
-    NodesInsert(nodes, createStructWithOrigin(5, 0, 10));
-    NodesInsert(nodes, createStructWithOrigin(5, 1, 10));
-    NodesInsert(nodes, createStructWithOrigin(15, 0, 0));
-    NodesInsert(nodes, createStructWithOrigin(-5, 0, 0));
-    NodesInsert(nodes, createStructWithOrigin(-5.1, 0, 0));
+    NodesInsert(nodes, (5, 0, 0));
+    NodesInsert(nodes, (5, 0, 1));
+    NodesInsert(nodes, (5, 10, 0));
+    NodesInsert(nodes, (5, 0, 10));
+    NodesInsert(nodes, (5, 1, 10));
+    NodesInsert(nodes, (15, 0, 0));
+    NodesInsert(nodes, (-5, 0, 0));
+    NodesInsert(nodes, (-5.1, 0, 0));
 
     elements = NodesGetElementsInSquaredDistance(nodes, (5, 0, 0), 100);
 
@@ -99,18 +92,11 @@ NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDista
 NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes()
 {
     nodes = NodesCreate(10);
-    NodesInsert(nodes, createStructWithOrigin(10, 20, 30));
-    NodesInsert(nodes, createStructWithOrigin(30, 20, 30));
-    NodesInsert(nodes, createStructWithOrigin(0, 0, 0));
+    NodesInsert(nodes, (10, 20, 30));
+    NodesInsert(nodes, (30, 20, 30));
+    NodesInsert(nodes, (0, 0, 0));
 
     elements = NodesGetElementsInSquaredDistance(nodes, (20, 20, 30), 100);
 
     assert(elements.size == 2);
-}
-
-createStructWithOrigin(x, y, z)
-{
-    struct = spawnStruct();
-    struct.origin = (x, y, z);
-    return struct;
 }

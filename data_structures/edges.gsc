@@ -7,10 +7,10 @@ EdgesCreate()
     return edges;
 }
 
-EdgesInsert(edges, from, to, weight, type)
+EdgesInsert(edges, fromUid, toUid, weight, type)
 {
-    from = from + "";
-    to = to + "";
+    from = fromUid + "";
+    to = toUid + "";
 
     if (!isDefined(edges.elements[from]))
     {
@@ -20,7 +20,8 @@ EdgesInsert(edges, from, to, weight, type)
     }
 
     edgeStruct = spawnStruct();
-    edgeStruct.to = to;
+    edgeStruct.from = fromUid;
+    edgeStruct.to = toUid;
     edgeStruct.weight = weight;
     edgeStruct.type = type;
 
@@ -67,11 +68,6 @@ EdgesExists(edges, from, to)
 
     return isDefined(edges.elements[from])
         && isDefined(edges.elements[from].dictionary[to]);
-}
-
-EdgesIsTwoWay(edges, from, to)
-{
-    return EdgesExists(edges, from, to) && EdgesExists(edges, to, from);
 }
 
 EdgesGet(edges, from, to)

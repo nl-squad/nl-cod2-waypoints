@@ -2,7 +2,7 @@
 Main()
 {
     blanco\data_structures\binary_heap_tests::Main();
-    blanco\data_structures\chunks_tests::Main();
+    blanco\data_structures\nodes_tests::Main();
     blanco\data_structures\edges_tests::Main();
     blanco\data_structures\hash_array_tests::Main();
     blanco\tests::RunAll();

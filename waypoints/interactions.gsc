@@ -1,4 +1,6 @@
 #include blanco\utils;
+#include blanco\data_structures\edges;
+#include blanco\data_structures\nodes;
 
 Main()
 {
@@ -7,7 +9,7 @@ Main()
     while (true)
     {
         level waittill("connecting", player);
-        player thread playerDrawingLoop();
+        player thread playerInteractionsLoop();
     }
 }
 
@@ -30,7 +32,7 @@ playerInteractionsLoop()
                 wait 0.05;
         }
 
-        if (self useButtonPress() && isDefined(node))
+        if (self useButtonPressed() && isDefined(node))
         {
             startDrawingEdgeInteraction();
 
@@ -98,7 +100,7 @@ getEdgeInSelectRange(origin)
         for (j = 0; j < edges.size; j += 1)
         {
             otherNode = NodesGetElement(nodes, edges[j].to);
-            midOrigin = waypoints\draw::calculateMidOrigin(node.origin, otherNode.origin);
+            midOrigin = blanco\waypoints\draw::calculateMidOrigin(node.origin, otherNode.origin);
             dist = distanceSquared(midOrigin, origin);
 
             if (!isDefined(closestEdge) || dist < closestEdgeDistance)
@@ -114,10 +116,7 @@ getEdgeInSelectRange(origin)
 
 insertNodeInteraction()
 {
-    node = spawnStruct();
-    node.origin = self getTargetOrigin();
-
-    NodesInsert(level.nodes, node);
+    NodesInsert(level.nodes, self getTargetOrigin());
 }
 
 removeNodeInteraction(node)
@@ -137,9 +136,16 @@ startDrawingEdgeInteraction(node)
 
 endDrawingEdgeInteraction(node)
 {
+    if (!isDefined(node))
+    {
+        self.drawEdgeStartingNode = undefined;
+        return;
+    }
+
     if (node.uid == self.drawEdgeStartingNode.uid)
         self iPrintln("^1Can't add edge from node to the same node");
 
     weight = distanceSquared(self.drawEdgeStartingNode.origin, node.orgin);
     EdgesInsert(level.edges, self.drawEdgeStartingNode.uid, node.uid, weight, level.EDGE_STAND);
+    self.drawEdgeStartingNode = undefined;
 }
