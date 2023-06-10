@@ -16,6 +16,10 @@ Main()
     level.EDGE_JUMP = 4;
     level.EDGE_LADDER = 5;
 
+    level.STAND_HEIGHT_AT_LEAST = 64;
+    level.CROUCH_HEIGHT_AT_LEAST = 48;
+    level.PRONE_HEIGHT_AT_LEAST = 32;
+
     level.DISCOVER_Z_OFFSET = 32;
     level.DISCOVER_MAX_DROPDOWN = 300;
     level.MINIMUM_SPACE_BETWEEN_NODES_SQUARED = level.GRID_SIZE * level.GRID_SIZE / 2;
@@ -180,19 +184,42 @@ getSearchDirections()
 
 getEdgeType(firstOrigin, secondOrigin)
 {
-    return EdgeType(level.EDGE_STAND, level.EDGE_STAND);
+    firstUpTrace = bulletTrace(firstOrigin, firstOrigin + (0, 0, level.STAND_HEIGHT_AT_LEAST), false, undefined);
+    secondUpTrace = bulletTrace(secondOrigin, secondOrigin + (0, 0, level.STAND_HEIGHT_AT_LEAST), false, undefined);
+
+    typeTo = level.EDGE_STAND;
+    typeReverse = level.EDGE_STAND;
+
+    if (firstUpTrace["fraction"] < 1 || secondUpTrace["fraction"] < 1)
+    {
+        firstHeight = firstUpTrace["position"][2] - firstOrigin[2];
+        secondHeight = secondUpTrace["position"][2] - secondOrigin[2];
+
+        minHeight = firstHeight;
+        if (secondHeight < firstHeight)
+            minHeight = secondHeight;
+
+        if (minHeight >= level.CROUCH_HEIGHT_AT_LEAST)
+        {
+            typeTo = level.EDGE_CROUCH;
+            typeReverse = level.EDGE_CROUCH;
+        }
+        else if (minHeight >= level.PRONE_HEIGHT_AT_LEAST)
+        {
+            typeTo = level.EDGE_PRONE;
+            typeReverse = level.EDGE_PRONE;
+        }
+        else
+        {
+            typeTo = level.EDGE_JUMP;
+            typeReverse = level.EDGE_JUMP;
+        }
+    }
+
+    return EdgeType(typeTo, typeReverse);
 
     // TODO: if slope to steep
     //     return undefined
-
-    // if spaceOverHeadA or spavOverHeadB < prone minimal
-    //     return undefined
-
-    // if spaceOverHeadA or spavOverHeadB < crouch minimal
-    //     return prone
-
-    // if spaceOverHeadA or spaceOverHeadB < stand minimal
-    //     return crouch
 
     // if bullettrace not clear and node.z > neighbour.z
     //     return jump
