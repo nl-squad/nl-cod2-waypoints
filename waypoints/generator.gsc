@@ -7,13 +7,14 @@ Main()
     setCvar("developer", "2");
     setCvar("developer_script", "1");
 
-    level.GRID_SIZE = 50;
-    level.CHUNKS_SIZE = 200;
+    level.GRID_SIZE = 64;
+    level.CHUNKS_SIZE = 256;
+    level.MAX_ITERATIONS = 1000;
     level.EDGE_STAND = 1;
     level.EDGE_CROUCH = 2;
     level.EDGE_PRONE = 3;
     level.EDGE_JUMP = 4;
-    level.EDGE_LADDER = 4;
+    level.EDGE_LADDER = 5;
 
     level.DISCOVER_Z_OFFSET = 32;
     level.DISCOVER_MAX_DROPDOWN = 300;
@@ -27,13 +28,19 @@ Start(startOrigin)
     resetGraph();
 
     nodeUid = NodesInsert(level.nodes, startOrigin);
-    iterationsLeft = 10;
+    interationsCount = 0;
 
-    while(isDefined(nodeUid) && iterationsLeft > 0)
+    while(isDefined(nodeUid) && interationsCount < level.MAX_ITERATIONS)
     {
         discoverFromNode(nodeUid, false);
         nodeUid = OpenSetPop(level.openSet);
-        iterationsLeft -= 1;
+        interationsCount += 1;
+
+        if (interationsCount % 500 == 0)
+        {
+            iPrintLn("1s break");
+            wait 1;
+        }
     }
 
     nodesCount = NodesGetAllElements(level.nodes).size;
@@ -57,15 +64,29 @@ discoverFromNode(nodeUid, isDebug)
     {
         neighbour = neighbours[i];
 
-        if (NodesAlreadyHasNodeInSquaredDistance(level.nodes, neighbour.origin, level.MINIMUM_SPACE_BETWEEN_NODES_SQUARED))
+        existingNode = NodesGetClosestElementInSquareDistance(level.nodes, neighbour.origin, level.MINIMUM_SPACE_BETWEEN_NODES_SQUARED, nodeUid);
+        if (isDefined(existingNode))
         {
             if (isDebug)
                 blanco\waypoints\draw::AddPrint(neighbour.origin, "Already", (0.2, 0.6, 0.99));
+
+            if (EdgesExists(level.edges, nodeUid, existingNode.uid) || EdgesExists(level.edges, existingNode.uid, nodeUid))
+                continue;
+
+            edgeType = getEdgeType(node.origin, existingNode.origin);
+            weight = distanceSquared(node.origin, existingNode.origin);
+
+            if (isDefined(edgeType.typeTo))
+                EdgesInsert(level.edges, nodeUid, existingNode.uid, weight, edgeType.typeTo);
+
+            if (isDefined(edgeType.typeReverse))
+                EdgesInsert(level.edges, existingNode.uid, nodeUid, weight, edgeType.typeReverse);
 
             continue;
         }
 
         insertedNodeId = NodesInsert(level.nodes, neighbour.origin);
+        OpenSetInsert(level.openSet, insertedNodeId);
 
         weight = distanceSquared(node.origin, neighbour.origin);
 
@@ -93,8 +114,6 @@ getNeighbours(origin, isDebug)
 
         directionOrigin = newOrigin + maps\mp\_utility::vectorScale(direction, level.GRID_SIZE);
         directionOrigin = capTrace(newOrigin, directionOrigin, isDebug);
-
-        // TODO: slope adjust
 
         onGroundOrigin = putOnTheGround(directionOrigin, isDebug);
         if (!isDefined(onGroundOrigin))

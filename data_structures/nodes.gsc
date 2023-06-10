@@ -15,8 +15,8 @@ NodesInsert(nodes, origin)
     uid = nodes.nextUid;
     nodes.nextUid += 1;
 
-    printLn("Inserted node " + uid + " at origin " + origin);
-    iprintLn("Inserted node " + uid + " at origin " + origin);
+    // printLn("Inserted node " + uid + " at origin " + origin);
+    // iprintLn("Inserted node " + uid + " at origin " + origin);
 
     element = spawnStruct();
     element.origin = origin;
@@ -74,9 +74,29 @@ NodesDelete(nodes, uid)
     nodes.elements[uid] = undefined;
 }
 
-NodesAlreadyHasNodeInSquaredDistance(nodes, origin, squaredDistance)
+NodesGetClosestElementInSquareDistance(nodes, origin, squaredDistance, currentNodeUid)
 {
-    return NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance).size > 0;
+    elements = NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance);
+    if (elements.size == 0)
+        return undefined;
+
+    best = undefined;
+    bestDistance = 0;
+
+    for (i = 0; i < elements.size; i += 1)
+    {
+        if (elements[i].uid == currentNodeUid)
+            continue;
+
+        dist = distanceSquared(origin, elements[i].origin);
+        if (!isDefined(best) || dist < bestDistance)
+        {
+            best = elements[i];
+            bestDistance = dist;
+        }
+    }
+
+    return best;
 }
 
 NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
@@ -99,7 +119,7 @@ NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
                 y = (yOriginNode + yOffset) + "";
                 z = (zOriginNode + zOffset) + "";
 
-                nodeIndices = getIndicesFromNode(nodes, x, y, z);
+                nodeIndices = getIndicesFromChunk(nodes, x, y, z);
                 for (i = 0; i < nodeIndices.size; i += 1)
                     indices[indices.size] = nodeIndices[i];
             }
@@ -117,7 +137,7 @@ NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
     return filteredElements;
 }
 
-getIndicesFromNode(nodes, x, y, z)
+getIndicesFromChunk(nodes, x, y, z)
 {
     if (!isDefined(nodes.dictionary[x])
         || !isDefined(nodes.dictionary[x][y])

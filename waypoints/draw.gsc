@@ -6,6 +6,11 @@ Main()
     level.DRAW_EDGE_DISTNACE_SQUARED = 600 * 600;
     level.DRAW_NODE_DISTNACE_SQUARED = 160 * 160;
 
+    thread initializeDrawingOnPlayerConnect();
+}
+
+initializeDrawingOnPlayerConnect()
+{
     while (true)
     {
         level waittill("connecting", player);
@@ -51,9 +56,6 @@ drawNodesAndEdges()
             otherNode = NodesGetElement(level.nodes, edges[j].to);
             otherEdge = EdgesGet(level.edges, otherNode.uid, node.uid);
             midOrigin = calculateMidOrigin(node.origin, otherNode.origin);
-
-            // iPrintln("edge #" + j + " from=" + edges[j].from + " to=" + edges[j].to);// TODO: remove            
-            // iPrintln("node #" + edges[j].to + " isDefined=" + isDefined(otherNode));// TODO: remove
 
             line(node.origin, midOrigin, getColorForType(edges[j].type), false, 1);
             line(otherNode.origin, midOrigin, getColorForType(otherEdge.type), false, 1);

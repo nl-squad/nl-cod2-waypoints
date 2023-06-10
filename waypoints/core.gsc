@@ -10,6 +10,5 @@ Main()
     blanco\waypoints\generator::Main();
     blanco\waypoints\commands::Main();
     blanco\waypoints\draw::Main();
-    blanco\waypoints\generator::Main();
     blanco\waypoints\interactions::Main();
 }

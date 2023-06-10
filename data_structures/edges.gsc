@@ -12,8 +12,8 @@ EdgesInsert(edges, fromUid, toUid, weight, type)
     from = fromUid + "";
     to = toUid + "";
 
-    printLn("Inserted edge from " + from + " to " + to);
-    iprintLn("Inserted edge from " + from + " to " + to);
+    // printLn("Inserted edge from " + from + " to " + to);
+    // iprintLn("Inserted edge from " + from + " to " + to);
 
     if (!isDefined(edges.elements[from]))
     {
