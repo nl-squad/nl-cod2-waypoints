@@ -4,19 +4,21 @@ NodesCreate(chunkSize)
     nodes = spawnStruct();
     nodes.chunkSize = chunkSize;
     nodes.elements = [];
-    nodes.dictionary = [];
+    nodes.chunks = [];
     nodes.nextUid = 1;
 
     return nodes;
+}
+
+NodesGet(nodes, uid)
+{
+    return nodes.elements[uid];
 }
 
 NodesInsert(nodes, origin)
 {
     uid = nodes.nextUid;
     nodes.nextUid += 1;
-
-    // printLn("Inserted node " + uid + " at origin " + origin);
-    // iprintLn("Inserted node " + uid + " at origin " + origin);
 
     element = spawnStruct();
     element.origin = origin;
@@ -27,58 +29,44 @@ NodesInsert(nodes, origin)
     y = int(element.origin[1] / nodes.chunkSize) + "";
     z = int(element.origin[2] / nodes.chunkSize) + "";
 
-    if (!isDefined(nodes.dictionary[x]))
-        nodes.dictionary[x] = [];
+    if (!isDefined(nodes.chunks[x]))
+        nodes.chunks[x] = [];
 
-    if (!isDefined(nodes.dictionary[x][y]))
-        nodes.dictionary[x][y] = [];
+    if (!isDefined(nodes.chunks[x][y]))
+        nodes.chunks[x][y] = [];
 
-    if (!isDefined(nodes.dictionary[x][y][z]))
-        nodes.dictionary[x][y][z] = [];
+    if (!isDefined(nodes.chunks[x][y][z]))
+        nodes.chunks[x][y][z] = [];
 
-    nodes.dictionary[x][y][z][nodes.dictionary[x][y][z].size] = uid;
+    nodes.chunks[x][y][z][nodes.chunks[x][y][z].size] = element;
 
-    return uid;
-}
-
-NodesGetAllElements(nodes)
-{
-    return nodes.elements;
-}
-
-NodesGetElement(nodes, uid)
-{
-    return nodes.elements[uid];
+    return element;
 }
 
 NodesDelete(nodes, uid)
 {
-    assert(isDefined(nodes.elements[uid]));
+    node = NodesGet(nodes, uid);
+    x = int(node.origin[0] / nodes.chunkSize) + "";
+    y = int(node.origin[1] / nodes.chunkSize) + "";
+    z = int(node.origin[2] / nodes.chunkSize) + "";
 
-    element = nodes.elements[uid];
-    x = int(element.origin[0] / nodes.chunkSize) + "";
-    y = int(element.origin[1] / nodes.chunkSize) + "";
-    z = int(element.origin[2] / nodes.chunkSize) + "";
+    assert(isDefined(nodes.chunks[x]));
+    assert(isDefined(nodes.chunks[x][y]));
+    assert(isDefined(nodes.chunks[x][y][z]));
 
-    assert(isDefined(nodes.dictionary[x]));
-    assert(isDefined(nodes.dictionary[x][y]));
-    assert(isDefined(nodes.dictionary[x][y][z]));
+    newElements = [];
+    for (i = 0; i < nodes.chunks[x][y][z].size; i++)
+        if (nodes.chunks[x][y][z][i].uid != uid)
+            newElements[newElements.size] = nodes.chunks[x][y][z][i];
 
-    uids = nodes.dictionary[x][y][z];
-    newUids = [];
-    for (i = 0; i < uids.size; i++)
-        if (uids[i] != uid)
-            newUids[newUids.size] = uids[i];
+    nodes.chunks[x][y][z] = newElements;
 
-    nodes.dictionary[x][y][z] = newUids;
     nodes.elements[uid] = undefined;
 }
 
 NodesGetClosestElementInSquareDistance(nodes, origin, squaredDistance, currentNodeUid)
 {
     elements = NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance);
-    if (elements.size == 0)
-        return undefined;
 
     best = undefined;
     bestDistance = 0;
@@ -101,50 +89,43 @@ NodesGetClosestElementInSquareDistance(nodes, origin, squaredDistance, currentNo
 
 NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
 {
-    nodeRange = ceil(squaredDistance / (nodes.chunkSize * nodes.chunkSize));
+    range = ceil(squaredDistance / (nodes.chunkSize * nodes.chunkSize));
 
-    xOriginNode = int(origin[0] / nodes.chunkSize);
-    yOriginNode = int(origin[1] / nodes.chunkSize);
-    zOriginNode = int(origin[2] / nodes.chunkSize);
+    chunkX = int(origin[0] / nodes.chunkSize);
+    chunkY = int(origin[1] / nodes.chunkSize);
+    chunkZ = int(origin[2] / nodes.chunkSize);
 
-    indices = [];
+    foundNodes = [];
 
-    for (xOffset = -1 * nodeRange; xOffset <= nodeRange; xOffset++)
+    for (xOffset = -1 * range; xOffset <= range; xOffset++)
     {
-        for (yOffset = -1 * nodeRange; yOffset <= nodeRange; yOffset++)
+        for (yOffset = -1 * range; yOffset <= range; yOffset++)
         {
-            for (zOffset = -1 * nodeRange; zOffset <= nodeRange; zOffset++)
+            for (zOffset = -1 * range; zOffset <= range; zOffset++)
             {
-                x = (xOriginNode + xOffset) + "";
-                y = (yOriginNode + yOffset) + "";
-                z = (zOriginNode + zOffset) + "";
+                x = (chunkX + xOffset) + "";
+                y = (chunkY + yOffset) + "";
+                z = (chunkZ + zOffset) + "";
 
-                nodeIndices = getIndicesFromChunk(nodes, x, y, z);
-                for (i = 0; i < nodeIndices.size; i += 1)
-                    indices[indices.size] = nodeIndices[i];
+                nodesInChunk = getNodesInChunk(nodes, x, y, z);
+                for (i = 0; i < nodesInChunk.size; i += 1)
+                    if (distanceSquared(origin, nodesInChunk[i].origin) <= squaredDistance)
+                        foundNodes[indices.size] = nodesInChunk[i];
             }
         }
     }
 
-    filteredElements = [];
-    for (i = 0; i < indices.size; i += 1)
-    {
-        element = nodes.elements[indices[i]];
-        if (distanceSquared(origin, element.origin) <= squaredDistance)
-            filteredElements[filteredElements.size] = element;
-    }
-
-    return filteredElements;
+    return foundNodes;
 }
 
-getIndicesFromChunk(nodes, x, y, z)
+getNodesInChunk(nodes, x, y, z)
 {
-    if (!isDefined(nodes.dictionary[x])
-        || !isDefined(nodes.dictionary[x][y])
-        || !isDefined(nodes.dictionary[x][y][z]))
+    if (!isDefined(nodes.chunks[x])
+        || !isDefined(nodes.chunks[x][y])
+        || !isDefined(nodes.chunks[x][y][z]))
         return [];
 
-    return nodes.dictionary[x][y][z];
+    return nodes.chunks[x][y][z];
 }
 
 ceil(num)
