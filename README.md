@@ -59,3 +59,14 @@ Note: To move existing node, it's required to remove the existing one and creati
     - Displaying elements only in range
 7. Saving nodes and edges for further use
 8. Loading nodes and edges from saved file
+
+## Ideas 💡
+
+1. Automatic waypoints generation
+2. Automatic edges discovery on new node insert
+3. Draw methods dependent on run environment
+    - use light effects when in dedicated mode (no `developer_script` available on remote)
+    - use `line` and `print3d` when in local mode
+4. Save methods dependent on run environment
+    - save to db when run in dedicated mode
+    - save to file when run in local mode
