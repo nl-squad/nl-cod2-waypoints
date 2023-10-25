@@ -41,6 +41,8 @@ playerInteractionsLoop()
         if (isDefined(useButtonActivatedAngles) && !self useButtonPressed()) // [F] button released
         {
             anglesDifference = getAnglesDifference(useButtonActivatedAngles, self getPlayerAngles());
+            iPrintln(anglesDifference);
+
             if (anglesDifference < level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT)
             {
                 uid = insertNodeInteraction(self GetOrigin());
@@ -86,7 +88,8 @@ playerInteractionsLoop()
             isShootButtonActivated = false;
 
             newType = changeEdgeTypeInteraction(targetEdge.from, targetEdge.to);
-            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newType);
+            newTypeDisplayName = blanco\waypoints\edge_types::GetDisplayNameForEdgeType(newType);
+            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newTypeDisplayName);
         }
 
         wait 0.05;
