@@ -55,7 +55,7 @@ Note: To move existing node, it's required to remove the existing one and creati
     - ✅ Nodes displaying
     - ✅ Edges displaying
     - ✅ Edges type displaying
-    - Show currently selected node/edge (for deletion or edge drawing)
+    - ✅ Show currently selected node/edge (for deletion or edge drawing)
     - ✅ Displaying elements only in range
 7. ✅ Saving nodes and edges for further use
 8. ✅ Loading nodes and edges from saved file
@@ -65,8 +65,8 @@ Note: To move existing node, it's required to remove the existing one and creati
 10. ✅ Save methods dependent on run environment
     - ✅ save to db when run in dedicated mode
     - ✅ save to file when run in local mode
+11. ✅ Automatic edges discovery on new node insert
 
 ## Further development ideas 💡
 
 1. Automatic waypoints generation
-2. Automatic edges discovery on new node insert

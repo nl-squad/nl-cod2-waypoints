@@ -6,6 +6,11 @@ Main()
 {
     level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT = 20;
     level.SELECT_ELEMENT_MAX_SQUARED_DISTANCE = 16 * 16;
+    level.DISCOVERY_DISTANCE_SQUARED = 200 * 200;
+
+    level.STAND_OFFSET = (0, 0, 72);
+    level.CROUCH_OFFSET = (0, 0, 56);
+    level.PRONE_OFFSET = (0, 0, 40);
 
     thread initializeInteractionsOnPlayerConnect();
 }
@@ -77,8 +82,8 @@ playerInteractionsLoop()
             }
             else if (nodeOrEdge == 2)
             {
-                deleteEdgeInteraction(targetEdge.from, targetEdge.to);
-                printAction("remove edge #" + targetNode.from + " -> #" + targetEdge.to);
+                deleteEdgeInteraction(targetEdge.fromUid, targetEdge.toUid);
+                printAction("remove edge #" + targetNode.fromUid + " -> #" + targetEdge.toUid);
             }
         }
 
@@ -90,9 +95,9 @@ playerInteractionsLoop()
         {
             isShootButtonActivated = false;
 
-            newType = changeEdgeTypeInteraction(targetEdge.from, targetEdge.to);
+            newType = changeEdgeTypeInteraction(targetEdge.fromUid, targetEdge.toUid);
             newTypeDisplayName = blanco\waypoints\edge_types::GetDisplayNameForEdgeType(newType);
-            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newTypeDisplayName);
+            printAction("type edge #" + targetNode.fromUid + " -> #" + targetEdge.toUid + " " + newTypeDisplayName);
         }
 
         wait 0.05;
@@ -125,11 +130,29 @@ getEdgeInSelectRange(origin)
 
 insertNodeInteraction(origin)
 {
-    return NodesInsert(level.nodes, origin);
+    insertedNode = NodesInsert(level.nodes, origin);
+
+    nearbyNodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.DISCOVERY_DISTANCE_SQUARED);
+    for (i = 0; i < nearbyNodes.size; i += 1)
+    {
+        edgeType = estimateEdgeType(insertedNode, nearbyNodes[i]);
+        weight = distance(startNode.origin, nearbyNodes[i].origin);
+        selectOrigins = EdgesCalculateSelectOrigins(insertedNode.origin, nearbyNodes[i].origin);
+
+        edgeFrom = EdgesInsert(level.edges, insertedNode.uid, nearbyNodes[i].uid, weight, edgeType, selectOrigins.to);
+        edgeTo = EdgesInsert(level.edges, nearbyNodes[i].uid, insertedNode.uid, weight, edgeType, selectOrigins.reverse);
+
+        edgeTypeDisplayName = blanco\waypoints\edge_types::GetDisplayNameForEdgeType(edgeType);
+        printAction("discover edge #" + edgeFrom.fromUid + " -> #" + edgeFrom.toUid + " " + edgeFromTypeDisplayName);
+        printAction("discover edge #" + edgeTo.fromUid + " -> #" + edgeTo.toUid + " " + edgeFromTypeDisplayName);
+    }
+
+    return insertedNode;
 }
 
 insertEdgeInteraction(startNode, endNode)
 {
+    EdgesCalculateSelectOrigins(startOrigin, endOrigin)
     midDistance = distance(existingNode.origin, node.origin) / 2;
     differenceNormalVector = vectorNormalize(existingNode.origin - node.origin);
     toSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance - level.EDGE_SELECTOR_OFFSET);
@@ -200,4 +223,25 @@ getAnglesDifference(anglesA, anglesB)
     }
 
     return diff;
+}
+
+estimateEdgeType(startNode, endNode)
+{
+    standTrace = bulletTrace(startNode.origin + level.STAND_OFFSET, endNode.origin + level.STAND_OFFSET, false, undefined);
+    crouchTrace = bulletTrace(startNode.origin + level.CROUCH_OFFSET, endNode.origin + level.CROUCH_OFFSET, false, undefined);
+    proneTrace = bulletTrace(startNode.origin + level.PRONE_OFFSET, endNode.origin + level.PRONE_OFFSET, false, undefined);
+
+    if (standTrace["fraction"] == 1 && crouchTrace["fraction"] == 1 && proneTrace["fraction"] == 1)
+        return level.EDGE_NORMAL;
+    
+    if (standTrace["fraction"] < 1 && crouchTrace["fraction"] == 1 && proneTrace["fraction"] == 1)
+        return level.EDGE_CROUCH;
+    
+    if (standTrace["fraction"] < 1 && crouchTrace["fraction"] < 1 && proneTrace["fraction"] == 1)
+        return level.EDGE_PRONE;
+    
+    if (standTrace["fraction"] == 1 && crouchTrace["fraction"] < 1 && proneTrace["fraction"] < 1)
+        return level.EDGE_MANTLE;
+
+    return undefined;
 }
