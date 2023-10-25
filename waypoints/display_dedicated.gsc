@@ -4,6 +4,7 @@ Main()
     level.DISPLAYING_EDGE_SQUARED_DISTANCE = 200 * 200;
 
     level.NODE_FX = loadFx("fx/blanco_energie_sky.efx");
+    level.TARGET_FX = loadFx("fx/blanco_energie_pink.efx");
 
     thread initializeDisplaying();
 }
@@ -22,7 +23,10 @@ initializeDisplaying()
                 if (!isDefined(displayed[nodes[i].uid]))
                 {
                     displayed[nodes[i].uid] = true;
-                    playFx(level.NODE_FX, nodes[i].origin);
+                    if (isTargetedNode(nodes[i]))
+                        playFx(level.TARGET_FX, nodes[i].origin);
+                    else
+                        playFx(level.NODE_FX, nodes[i].origin);
                 }
 
             edges = EdgesGetElementsInSquaredDistance(level.edges, players[j].origin, level.DISPLAYING_EDGE_SQUARED_DISTANCE);
@@ -30,12 +34,34 @@ initializeDisplaying()
                 if (!isDefined(displayed[edges[i].fromUid + "_" + edges[i].toUid]))
                 {
                     displayed[edges[i].fromUid + "_" + edges[i].toUid] = true;
-                    playFx(GetFxForEdgeType(edges[i].type), edges[i].selectOrigin);
-                }
 
-            // TODO: Implement displaying selected waypoints
+                    if (isTargetedEdge(edges[i]))
+                        playFx(level.TARGET_FX, edges[i].selectOrigin);
+                    else
+                        playFx(GetFxForEdgeType(edges[i].type), edges[i].selectOrigin);
+                }
         }
 
         wait 1;
     }
+}
+
+isTargetedNode(node)
+{
+    players = getEntArray("player", "classname");
+    for (i = 0; i < players.size; i += 1)
+        if (isDefined(players[i].targetedNode) && players[i].targetedNode.uid == node.uid)
+            return true;
+
+    return false;
+}
+
+isTargetedEdge(edge)
+{
+    players = getEntArray("player", "classname");
+    for (i = 0; i < players.size; i += 1)
+        if (isDefined(players[i].targetedEdge) && players[i].targetedEdge.fromUid == node.uid)
+            return true;
+
+    return false;
 }

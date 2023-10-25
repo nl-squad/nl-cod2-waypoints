@@ -31,6 +31,9 @@ playerInteractionsLoop()
         targetNode = self getNodeInSelectRange(origin);
         targetEdge = self getEdgeInSelectRange(origin);
 
+        self.targetedNode = targetNode;
+        self.targetedEdge = targetEdge;
+
         // Use interactions
         if (!isDefined(useButtonActivatedAngles) && self useButtonPressed())
         {
