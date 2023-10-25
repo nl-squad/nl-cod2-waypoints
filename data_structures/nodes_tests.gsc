@@ -9,6 +9,7 @@ Main()
     test("NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance", ::NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance);
     test("NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance", ::NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance);
     test("NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes", ::NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes);
+    test("NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode", ::NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode);
 }
 
 NodesCreate__ShouldCreateEmptyNodes()
@@ -16,25 +17,27 @@ NodesCreate__ShouldCreateEmptyNodes()
     nodes = NodesCreate(100);
     assert(nodes.nextUid == 1);
     assert(nodes.elements.size == 0);
-    assert(nodes.dictionary.size == 0);
+    assert(nodes.chunks.size == 0);
 }
 
 NodesInsert__ShouldInsertElementIntoNodes()
 {
     nodes = NodesCreate(100);
-    uid = NodesInsert(nodes, (200, 300, 400));
-
-    assert(isDefined(NodesGetElement(nodes, uid)));
+    insertedNode = NodesInsert(nodes, (200, 300, 400));
+    node = NodesGet(insertedNode.uid);
+    
+    assert(insertedNode.uid == "1");
+    assert(node.uid == "1");
 }
 
 NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 {
     nodes = NodesCreate(100);
-    id1 = NodesInsert(nodes, (200, 300, 400));
-    id2 = NodesInsert(nodes, (100, 300, 400));
-    id3 = NodesInsert(nodes, (300, 300, 400));
+    insertedNode1 = NodesInsert(nodes, (200, 300, 400));
+    insertedNode2 = NodesInsert(nodes, (100, 300, 400));
+    insertedNode3 = NodesInsert(nodes, (300, 300, 400));
 
-    NodesDelete(nodes, id1);
+    NodesDelete(nodes, insertedNode1.uid);
 
     assert(edges.elements.size == 2);
     assert(edges.elements[0].uid == id2);
@@ -44,30 +47,30 @@ NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements()
 {
     nodes = NodesCreate(100);
-    id1 = NodesInsert(nodes, (200, 300, 400));
+    insertedNode1 = NodesInsert(nodes, (200, 300, 400));
     id2 = NodesInsert(nodes, (300, 400, 500));
 
-    NodesDelete(nodes, id1);
+    NodesDelete(nodes, insertedNode1.uid);
     
-    assert(NodesGetElement(nodes, id2).origin == (300, 400, 500));
+    assert(NodesGetElement(nodes, insertedNode2.uid).origin == (300, 400, 500));
 
-    id3 = NodesInsert(nodes, (500, 600, 700));
+    insertedNode3 = NodesInsert(nodes, (500, 600, 700));
 
-    assert(id3 != id1);
-    assert(NodesGetElement(nodes, id3).origin == (500, 600, 700));
+    assert(insertedNode3.uid != insertedNode1.uid);
+    assert(NodesGetElement(nodes, insertedNode3.uid).origin == (500, 600, 700));
 }
 
 NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
 {
     nodes = NodesCreate(100);
-    uid1 = NodesInsert(nodes, (200, 300, 400));
-    uid2 = NodesInsert(nodes, (300, 400, 500));
+    insertedNode1 = NodesInsert(nodes, (200, 300, 400));
+    insertedNode2 = NodesInsert(nodes, (300, 400, 500));
     
     elements = NodesGetElementsInSquaredDistance(nodes, (250, 350, 450), 20000);
 
     assert(elements.size == 2);
-    assert(isDefined(NodesGetElement(nodes, uid1)));
-    assert(isDefined(NodesGetElement(nodes, uid2)));
+    assert(isDefined(NodesGetElement(nodes, insertedNode1.uid)));
+    assert(isDefined(NodesGetElement(nodes, insertedNode2.uid)));
 }
 
 NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance()
@@ -97,4 +100,21 @@ NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes()
     elements = NodesGetElementsInSquaredDistance(nodes, (20, 20, 30), 100);
 
     assert(elements.size == 2);
+}
+
+NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode()
+{
+    nodes = NodesCreate(100);
+
+    NodesInsert(nodes, (30, 20, 30));
+    NodesInsert(nodes, (0, 0, 0));
+    NodesInsert(nodes, (-100, -100, 100)); // UID=3
+    NodesInsert(nodes, (-104, -104, 101));
+    NodesInsert(nodes, (-105, -104, 101));
+    NodesInsert(nodes, (-105, -103, 101));
+    NodesInsert(nodes, (30, 20, 30));
+
+    node = NodesGetClosestElementInSquareDistance(nodes, (-100, -100, 100), 16 * 16, "3");
+
+    assert(node.uid == "4");
 }
