@@ -20,14 +20,14 @@ NodesInsert(nodes, origin)
     uid = nodes.nextUid;
     nodes.nextUid += 1;
 
-    element = spawnStruct();
-    element.origin = origin;
-    element.uid = uid;
-    nodes.elements[uid] = element;
+    node = spawnStruct();
+    node.origin = origin;
+    node.uid = uid;
+    nodes.elements[uid] = node;
 
-    x = int(element.origin[0] / nodes.chunkSize) + "";
-    y = int(element.origin[1] / nodes.chunkSize) + "";
-    z = int(element.origin[2] / nodes.chunkSize) + "";
+    x = int(node.origin[0] / nodes.chunkSize) + "";
+    y = int(node.origin[1] / nodes.chunkSize) + "";
+    z = int(node.origin[2] / nodes.chunkSize) + "";
 
     if (!isDefined(nodes.chunks[x]))
         nodes.chunks[x] = [];
@@ -38,9 +38,9 @@ NodesInsert(nodes, origin)
     if (!isDefined(nodes.chunks[x][y][z]))
         nodes.chunks[x][y][z] = [];
 
-    nodes.chunks[x][y][z][nodes.chunks[x][y][z].size] = element;
+    nodes.chunks[x][y][z][nodes.chunks[x][y][z].size] = node;
 
-    return element;
+    return node;
 }
 
 NodesDelete(nodes, uid)

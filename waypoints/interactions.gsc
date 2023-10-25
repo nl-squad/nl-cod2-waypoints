@@ -45,13 +45,13 @@ playerInteractionsLoop()
 
             if (anglesDifference < level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT)
             {
-                uid = insertNodeInteraction(self GetOrigin());
-                printAction("insert node #" + uid);
+                insertedNode = insertNodeInteraction(self GetOrigin());
+                printAction("insert node #" + insertedNode.uid);
             }
             else if (isDefined(useButtonActivatedInitialNode) && isDefined(targetNode))
             {
-                insertEdgeInteraction(useButtonActivatedInitialNode, targetNode);
-                printAction("insert edge #" + useButtonActivatedInitialNode.uid + " -> #" + targetNode.uid);
+                insertedEdge = insertEdgeInteraction(useButtonActivatedInitialNode, targetNode);
+                printAction("insert edge #" + insertedEdge.fromUid + " -> #" + insertedEdge.toUid);
             }
 
             useButtonActivatedAngles = undefined;
@@ -133,7 +133,7 @@ insertEdgeInteraction(startNode, endNode)
     reverseSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance + level.EDGE_SELECTOR_OFFSET);
 
     weight = distance(startNode.origin, endNode.origin);
-    EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL);
+    return EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL);
 }
 
 deleteNodeInteraction(node)

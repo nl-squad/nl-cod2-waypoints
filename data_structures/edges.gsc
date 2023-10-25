@@ -13,24 +13,24 @@ EdgesCreate()
 
 EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin, chunkSize)
 {
-    edgeStruct = spawnStruct();
-    edgeStruct.fromUid = fromUid;
-    edgeStruct.toUid = toUid;
-    edgeStruct.weight = weight;
-    edgeStruct.type = type;
-    edgeStruct.selectOrigin = selectOrigin;
+    edge = spawnStruct();
+    edge.fromUid = fromUid;
+    edge.toUid = toUid;
+    edge.weight = weight;
+    edge.type = type;
+    edge.selectOrigin = selectOrigin;
 
-    edges.elements[getKey(fromUid, toUid)] = edgeStruct;
+    edges.elements[getKey(fromUid, toUid)] = edge;
 
     if (!isDefined(edges.fromDictionary[fromUid]))
         edges.fromDictionary[fromUid] = [];
 
-    edges.fromDictionary[fromUid][edges.fromDictionary[fromUid].size] = edgeStruct;
+    edges.fromDictionary[fromUid][edges.fromDictionary[fromUid].size] = edge;
 
     if (!isDefined(edges.toDictionary[toUid]))
         edges.toDictionary[toUid] = [];
 
-    edges.toDictionary[toUid][edges.toDictionary[toUid].size] = edgeStruct;
+    edges.toDictionary[toUid][edges.toDictionary[toUid].size] = edge;
 
     x = int(selectOrigin[0] / chunkSize) + "";
     y = int(selectOrigin[1] / chunkSize) + "";
@@ -45,7 +45,9 @@ EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin, chunkSize)
     if (!isDefined(edges.chunks[x][y][z]))
         edges.chunks[x][y][z] = [];
 
-    edges.chunks[x][y][z][edges.chunks[x][y][z].size] = edgeStruct;
+    edges.chunks[x][y][z][edges.chunks[x][y][z].size] = edge;
+
+    return edge;
 }
 
 EdgesDelete(edges, fromUid, toUid)
