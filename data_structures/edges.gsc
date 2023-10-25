@@ -152,6 +152,67 @@ EdgesCalculateSelectOrigins(startOrigin, endOrigin)
     return selectOrigins;
 }
 
+EdgesGetClosestElementInSquareDistance(edges, origin, squaredDistance)
+{
+    elements = EdgesGetElementsInSquaredDistance(edges, origin, squaredDistance);
+
+    best = undefined;
+    bestDistance = 0;
+
+    for (i = 0; i < elements.size; i += 1)
+    {
+        dist = distanceSquared(origin, elements[i].selectOrigin);
+        if (!isDefined(best) || dist < bestDistance)
+        {
+            best = elements[i];
+            bestDistance = dist;
+        }
+    }
+
+    return best;
+}
+
+EdgesGetElementsInSquaredDistance(edges, origin, squaredDistance)
+{
+    range = ceil(squaredDistance / (edges.chunkSize * edges.chunkSize));
+
+    chunkX = int(origin[0] / edges.chunkSize);
+    chunkY = int(origin[1] / edges.chunkSize);
+    chunkZ = int(origin[2] / edges.chunkSize);
+
+    edgesFound = [];
+
+    for (xOffset = -1 * range; xOffset <= range; xOffset++)
+    {
+        for (yOffset = -1 * range; yOffset <= range; yOffset++)
+        {
+            for (zOffset = -1 * range; zOffset <= range; zOffset++)
+            {
+                x = (chunkX + xOffset) + "";
+                y = (chunkY + yOffset) + "";
+                z = (chunkZ + zOffset) + "";
+
+                edgesInChunk = getEdgesInChunk(edges, x, y, z);
+                for (i = 0; i < edgesInChunk.size; i += 1)
+                    if (distanceSquared(origin, edgesInChunk[i].selectOrigin) <= squaredDistance)
+                        edgesFound[edgesFound.size] = edgesInChunk[i];
+            }
+        }
+    }
+
+    return edgesFound;
+}
+
+getEdgesInChunk(edges, x, y, z)
+{
+    if (!isDefined(edges.chunks[x])
+        || !isDefined(edges.chunks[x][y])
+        || !isDefined(edges.chunks[x][y][z]))
+        return [];
+
+    return edges.dictionary[x][y][z];
+}
+
 getKey(fromUid, toUid)
 {
     return fromUid + "_" + toUid;
