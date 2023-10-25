@@ -32,6 +32,8 @@ initializeDisplaying()
                     displayed[edges[i].fromUid + "_" + edges[i].toUid] = true;
                     playFx(GetFxForEdgeType(edges[i].type), edges[i].selectOrigin);
                 }
+
+            // TODO: Implement displaying selected waypoints
         }
 
         wait 1;

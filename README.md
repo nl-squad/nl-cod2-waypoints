@@ -51,22 +51,22 @@ Note: To move existing node, it's required to remove the existing one and creati
     - ✅ Removing node
     - ✅ Removing edge
     - ✅ Changing edge type
-6. Displaying nodes and edges
-    - Nodes displaying
-    - Edges displaying
-    - Edges type displaying
+6. ✅ Displaying nodes and edges
+    - ✅ Nodes displaying
+    - ✅ Edges displaying
+    - ✅ Edges type displaying
     - Show currently selected node/edge (for deletion or edge drawing)
-    - Displaying elements only in range
+    - ✅ Displaying elements only in range
 7. ✅ Saving nodes and edges for further use
 8. ✅ Loading nodes and edges from saved file
+9. ✅ Draw methods dependent on run environment
+    - ✅ use light effects when in dedicated mode (no `developer_script` available on remote)
+    - ✅ use `line` and `print3d` when in local mode
+10. ✅ Save methods dependent on run environment
+    - ✅ save to db when run in dedicated mode
+    - ✅ save to file when run in local mode
 
 ## Further development ideas 💡
 
 1. Automatic waypoints generation
 2. Automatic edges discovery on new node insert
-3. Draw methods dependent on run environment
-    - use light effects when in dedicated mode (no `developer_script` available on remote)
-    - use `line` and `print3d` when in local mode
-4. ✅ Save methods dependent on run environment
-    - ✅ save to db when run in dedicated mode
-    - ✅ save to file when run in local mode

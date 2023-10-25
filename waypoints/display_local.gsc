@@ -31,5 +31,7 @@ displayingLoop()
         }
 
 	    waittillframeend;
+
+        // TODO: Implement displaying selected waypoints
     }
 }

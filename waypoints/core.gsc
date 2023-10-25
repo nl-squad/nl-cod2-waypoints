@@ -12,5 +12,5 @@ Main()
     blanco\waypoints\display_dedicated::Main();
     blanco\waypoints\edge_types::Main();
     blanco\waypoints\interactions::Main();
-    blanco\waypoints\persistence::Main();
+    blanco\waypoints\persistence_dedicated::Main();
 }
