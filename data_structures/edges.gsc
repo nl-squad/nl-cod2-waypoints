@@ -217,3 +217,12 @@ getKey(fromUid, toUid)
 {
     return fromUid + "_" + toUid;
 }
+
+ceil(num)
+{
+    floor = int(num);
+    if (num == floor)
+        return floor;
+
+    return floor + 1;
+}
