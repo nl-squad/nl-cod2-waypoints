@@ -83,7 +83,7 @@ discoverFromNode(nodeUid, isDebug)
             edgeType = getEdgeType(node.origin, existingNode.origin);
             weight = distanceSquared(node.origin, existingNode.origin);
             
-            selectOrigins = CalculateSelectOrigins(node.origin, existingNode.origin);
+            selectOrigins = EdgesCalculateSelectOrigins(node.origin, existingNode.origin);
 
             if (isDefined(edgeType.typeTo))
                 EdgesInsert(level.edges, nodeUid, existingNode.uid, weight, edgeType.typeTo, selectOrigins.to);
@@ -102,7 +102,7 @@ discoverFromNode(nodeUid, isDebug)
         if (isDebug)
             blanco\waypoints\draw::AddPrint(neighbour.origin, "New", (0.2, 0.6, 0.99));
 
-        selectOrigins = CalculateSelectOrigins(node.origin, neighbour.origin);
+        selectOrigins = EdgesCalculateSelectOrigins(node.origin, neighbour.origin);
 
         if (isDefined(neighbour.typeTo))
             EdgesInsert(level.edges, nodeUid, insertedNodeId, weight, neighbour.typeTo, selectOrigins.to);
