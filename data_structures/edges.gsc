@@ -84,3 +84,14 @@ EdgesGet(edges, from, to)
     index = edges.elements[from].dictionary[to];
     return edges.elements[from].list[index];
 }
+
+EdgesChangeType(edges, from, to, newType)
+{
+    edge = EdgesGet(edges, from, to);
+
+    if (!isDefined(newType))
+        newType = (edge.type + 1) % level.EDGE_TYPES_COUNT;
+
+    edge.type = newType;
+    return edge.type;
+}
