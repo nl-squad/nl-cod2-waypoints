@@ -126,9 +126,9 @@ EdgesCalculateSelectOrigins_ShouldCalculateToAndReverse()
 
     selectOrigins = EdgesCalculateSelectOrigins(originA, originB);
 
-    assert(selectOrigin.to[0] == 10);
-    assert(selectOrigin.to[1] == 110 - level.EDGE_SELECTOR_OFFSET);
-    assert(selectOrigin.to[2] == 13);
+    assert(selectOrigin.forward[0] == 10);
+    assert(selectOrigin.forward[1] == 110 - level.EDGE_SELECTOR_OFFSET);
+    assert(selectOrigin.forward[2] == 13);
     assert(selectOrigin.reverse[0] == 10);
     assert(selectOrigin.reverse[1] == 110 + level.EDGE_SELECTOR_OFFSET);
     assert(selectOrigin.reverse[2] == 13);

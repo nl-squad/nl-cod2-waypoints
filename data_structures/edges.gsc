@@ -164,13 +164,18 @@ EdgesChangeType(edges, fromUid, toUid newType)
     return edge.type;
 }
 
+EdgesCalculateDistance(startOrigin, endOrigin)
+{
+    return distance(startOrigin, endOrigin);
+}
+
 EdgesCalculateSelectOrigins(startOrigin, endOrigin)
 {
     midDistance = distance(startOrigin, endOrigin) / 2;
     normal = vectorNormalize(endOrigin - startOrigin);
 
     selectOrigins = spawnStruct();
-    selectOrigins.toUid = startOrigin + maps\mp\_utility::vectorScale(normal, midDistance - level.EDGE_SELECTOR_OFFSET);
+    selectOrigins.forward = startOrigin + maps\mp\_utility::vectorScale(normal, midDistance - level.EDGE_SELECTOR_OFFSET);
     selectOrigins.reverse = startOrigin + maps\mp\_utility::vectorScale(normal, midDistance + level.EDGE_SELECTOR_OFFSET);
     return selectOrigins;
 }

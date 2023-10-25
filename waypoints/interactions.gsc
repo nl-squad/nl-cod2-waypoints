@@ -136,10 +136,10 @@ insertNodeInteraction(origin)
     for (i = 0; i < nearbyNodes.size; i += 1)
     {
         edgeType = estimateEdgeType(insertedNode, nearbyNodes[i]);
-        weight = distance(startNode.origin, nearbyNodes[i].origin);
+        weight = EdgesCalculateDistance(startNode.origin, nearbyNodes[i].origin);
         selectOrigins = EdgesCalculateSelectOrigins(insertedNode.origin, nearbyNodes[i].origin);
 
-        edgeFrom = EdgesInsert(level.edges, insertedNode.uid, nearbyNodes[i].uid, weight, edgeType, selectOrigins.to);
+        edgeFrom = EdgesInsert(level.edges, insertedNode.uid, nearbyNodes[i].uid, weight, edgeType, selectOrigins.forward);
         edgeTo = EdgesInsert(level.edges, nearbyNodes[i].uid, insertedNode.uid, weight, edgeType, selectOrigins.reverse);
 
         edgeTypeDisplayName = blanco\waypoints\edge_types::GetDisplayNameForEdgeType(edgeType);
@@ -152,14 +152,9 @@ insertNodeInteraction(origin)
 
 insertEdgeInteraction(startNode, endNode)
 {
-    EdgesCalculateSelectOrigins(startOrigin, endOrigin)
-    midDistance = distance(existingNode.origin, node.origin) / 2;
-    differenceNormalVector = vectorNormalize(existingNode.origin - node.origin);
-    toSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance - level.EDGE_SELECTOR_OFFSET);
-    reverseSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance + level.EDGE_SELECTOR_OFFSET);
-
-    weight = distance(startNode.origin, endNode.origin);
-    return EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL);
+    selectOrigins = EdgesCalculateSelectOrigins(startNode.origin, endNode.origin);
+    weight = EdgesCalculateDistance(startNode.origin, endNode.origin);
+    return EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL, selectOrigins.forward);
 }
 
 deleteNodeInteraction(node)
