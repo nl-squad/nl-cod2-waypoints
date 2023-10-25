@@ -11,7 +11,7 @@ EdgesCreate()
     return edges;
 }
 
-EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin, chunkSize)
+EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin)
 {
     edge = spawnStruct();
     edge.fromUid = fromUid;
@@ -32,9 +32,9 @@ EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin, chunkSize)
 
     edges.toDictionary[toUid][edges.toDictionary[toUid].size] = edge;
 
-    x = int(selectOrigin[0] / chunkSize) + "";
-    y = int(selectOrigin[1] / chunkSize) + "";
-    z = int(selectOrigin[2] / chunkSize) + "";
+    x = int(selectOrigin[0] / edges.chunkSize) + "";
+    y = int(selectOrigin[1] / edges.chunkSize) + "";
+    z = int(selectOrigin[2] / edges.chunkSize) + "";
 
     if (!isDefined(edges.chunks[x]))
         edges.chunks[x] = [];
@@ -48,6 +48,11 @@ EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin, chunkSize)
     edges.chunks[x][y][z][edges.chunks[x][y][z].size] = edge;
 
     return edge;
+}
+
+EdgesLoad(edges, fromUid, toUid, weight, type, selectOrigin)
+{
+    EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin);
 }
 
 EdgesDelete(edges, fromUid, toUid)

@@ -43,6 +43,18 @@ NodesInsert(nodes, origin)
     return node;
 }
 
+NodesLoad(nodes, uid, origin)
+{
+    insertedNode = NodesInsert(nodes, origin);
+
+    nodes.elements[insertedNode.uid] = undefined;
+
+    nodes.elements[uid] = insertedNode;
+    insertedNode.uid = uid;
+
+    nodes.nextUid = int(uid) + 1;
+}
+
 NodesDelete(nodes, uid)
 {
     node = NodesGet(nodes, uid);

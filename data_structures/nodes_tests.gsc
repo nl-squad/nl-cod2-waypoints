@@ -10,6 +10,7 @@ Main()
     test("NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance", ::NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance);
     test("NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes", ::NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOnBorderOfNodes);
     test("NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode", ::NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode);
+    test("NodesLoad__ShouldAppendNewNodes", ::NodesLoad__ShouldAppendNewNodes);
 }
 
 NodesCreate__ShouldCreateEmptyNodes()
@@ -117,4 +118,14 @@ NodesGetClosestElementInSquareDistance_ShouldReturnClosestNode()
     node = NodesGetClosestElementInSquareDistance(nodes, (-100, -100, 100), 16 * 16, "3");
 
     assert(node.uid == "4");
+}
+
+NodesLoad__ShouldAppendNewNodes()
+{
+    nodes = NodesCreate(100);
+
+    NodesLoad(nodes, "10", (10, 20, 30));
+    NodesLoad(nodes, "11", (11, 20, 31));
+
+    assert(nodes.nextUid == 12);
 }
