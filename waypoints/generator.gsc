@@ -10,11 +10,13 @@ Main()
     level.GRID_SIZE = 64;
     level.CHUNKS_SIZE = 256;
     level.MAX_ITERATIONS = 1000;
-    level.EDGE_STAND = 1;
-    level.EDGE_CROUCH = 2;
-    level.EDGE_PRONE = 3;
-    level.EDGE_JUMP = 4;
-    level.EDGE_LADDER = 5;
+    level.EDGE_NORMAL = 0;
+    level.EDGE_CROUCH = 1;
+    level.EDGE_PRONE = 2;
+    level.EDGE_JUMP = 3;
+    level.EDGE_LADDER = 4;
+    level.EDGE_MANTLE = 5;
+    level.EDGE_TYPES_COUNT = 6;
 
     level.STAND_HEIGHT_AT_LEAST = 64;
     level.CROUCH_HEIGHT_AT_LEAST = 48;
@@ -187,8 +189,8 @@ getEdgeType(firstOrigin, secondOrigin)
     firstUpTrace = bulletTrace(firstOrigin, firstOrigin + (0, 0, level.STAND_HEIGHT_AT_LEAST), false, undefined);
     secondUpTrace = bulletTrace(secondOrigin, secondOrigin + (0, 0, level.STAND_HEIGHT_AT_LEAST), false, undefined);
 
-    typeTo = level.EDGE_STAND;
-    typeReverse = level.EDGE_STAND;
+    typeTo = level.EDGE_NORMAL;
+    typeReverse = level.EDGE_NORMAL;
 
     if (firstUpTrace["fraction"] < 1 || secondUpTrace["fraction"] < 1)
     {

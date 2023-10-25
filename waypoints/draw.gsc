@@ -107,7 +107,7 @@ calculateMidOrigin(firstOrigin, secondOrigin)
 
 getColorForType(type)
 {
-    if (type == level.EDGE_STAND)
+    if (type == level.EDGE_NORMAL)
         return (1, 1, 1);
 
     if (type == level.EDGE_CROUCH)
