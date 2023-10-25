@@ -5,9 +5,15 @@ NodesCreate(chunkSize)
     nodes.chunkSize = chunkSize;
     nodes.elements = [];
     nodes.chunks = [];
+    nodes.array = [];
     nodes.nextUid = 1;
 
     return nodes;
+}
+
+NodesGetAll(nodes)
+{
+    return nodes.array;
 }
 
 NodesGet(nodes, uid)
@@ -39,6 +45,8 @@ NodesInsert(nodes, origin)
         nodes.chunks[x][y][z] = [];
 
     nodes.chunks[x][y][z][nodes.chunks[x][y][z].size] = node;
+
+    nodes.array[nodes.array.size] = node;
 
     return node;
 }
@@ -72,6 +80,13 @@ NodesDelete(nodes, uid)
             newElements[newElements.size] = nodes.chunks[x][y][z][i];
 
     nodes.chunks[x][y][z] = newElements;
+
+    newArray = [];
+    for (i = 0; i < nodes.array.size; i += 1)
+        if (nodes.array[i].uid != uid)
+            newArray[newArray.size] = nodes.array[i];
+
+    nodes.array = newArray;
 
     nodes.elements[uid] = undefined;
 }

@@ -69,7 +69,7 @@ fileHander(mode, suffix, handlingFunction)
 
 saveNodesToFile(fileHandle)
 {
-    nodes = NodesGetAll(level.nodes); // TODO: Implement NodesGetAll
+    nodes = NodesGetAll(level.nodes);
     for (i = 0; i < nodes.size; i += 1)
     {
         node = nodes[i];
@@ -141,7 +141,7 @@ loadedNodesFromDatabase(result)
 
 saveEdgesToFile(fileHandle)
 {
-    edges = EdgesGetAll(level.edges); // TODO: Implement EdgesGetAll
+    edges = EdgesGetAll(level.edges);
     for (i = 0; i < edges.size; i += 1)
     {
         edge = edges[i];

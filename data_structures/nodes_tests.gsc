@@ -4,6 +4,7 @@
 Main()
 {
     test("NodesCreate__ShouldCreateEmptyNodes", ::NodesCreate__ShouldCreateEmptyNodes);
+    test("NodesGetAll__ShouldReturnAllNodes", ::NodesGetAll__ShouldReturnAllNodes);
     test("NodesInsert__ShouldInsertElementIntoNodes", ::NodesInsert__ShouldInsertElementIntoNodes);
     test("NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements", ::NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements);
     test("NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance", ::NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance);
@@ -19,6 +20,30 @@ NodesCreate__ShouldCreateEmptyNodes()
     assert(nodes.nextUid == 1);
     assert(nodes.elements.size == 0);
     assert(nodes.chunks.size == 0);
+}
+
+NodesGetAll__ShouldReturnAllNodes()
+{
+    nodes = NodesCreate(100);
+
+    insertedNode1 = NodesInsert(nodes, (30, 20, 30));
+    insertedNode2 = NodesInsert(nodes, (0, 0, 0));
+    insertedNode3 = NodesInsert(nodes, (-100, -100, 100));
+    insertedNode4 = NodesInsert(nodes, (30, 20, 30));
+
+    assert(NodesGetAll(nodes).size == 4);
+
+    NodesDelete(nodes, insertedNode1.uid);
+
+    assert(NodesGetAll(nodes).size == 3);
+
+    NodesDelete(nodes, insertedNode3.uid);
+
+    assert(NodesGetAll(nodes).size == 2);
+
+    NodesDelete(nodes, insertedNode4.uid);
+
+    assert(NodesGetAll(nodes).size == 1);
 }
 
 NodesInsert__ShouldInsertElementIntoNodes()
