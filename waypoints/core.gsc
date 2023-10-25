@@ -9,6 +9,7 @@ Main()
 
     blanco\waypoints\generator::Main();
     blanco\waypoints\commands::Main();
+    blanco\waypoints\edge_types::Main();
     blanco\waypoints\draw::Main();
     blanco\waypoints\interactions::Main();
 }

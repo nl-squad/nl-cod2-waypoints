@@ -10,13 +10,6 @@ Main()
     level.GRID_SIZE = 64;
     level.CHUNKS_SIZE = 256;
     level.MAX_ITERATIONS = 1000;
-    level.EDGE_NORMAL = 0;
-    level.EDGE_CROUCH = 1;
-    level.EDGE_PRONE = 2;
-    level.EDGE_JUMP = 3;
-    level.EDGE_LADDER = 4;
-    level.EDGE_MANTLE = 5;
-    level.EDGE_TYPES_COUNT = 6;
 
     level.STAND_HEIGHT_AT_LEAST = 64;
     level.CROUCH_HEIGHT_AT_LEAST = 48;
