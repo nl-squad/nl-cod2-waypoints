@@ -1,4 +1,4 @@
-# nl-cod2-nodes
+# nl-cod2-waypoints
 
 The aim of this project is to enable nodes and edges configuration for any given map. Nodes and edges will be used as the base structure for bot path finding.
 
@@ -45,11 +45,11 @@ Note: To move existing node, it's required to remove the existing one and creati
     - ✅ Getting
     - ✅ Removing
 4. ✅ Waypoint gametype
-5. Player interactions
+5. ✅ Player interactions
     - ✅ Inserting new node
     - ✅ Inserting new edge
     - ✅ Removing node
-    - Removing edge
+    - ✅ Removing edge
     - ✅ Changing edge type
 6. Displaying nodes and edges
     - Nodes displaying
