@@ -4,7 +4,8 @@
 
 Main()
 {
-    level.SELECT_NODE_SQUARED_DISTANCE = 16 * 16;
+    level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT = 20;
+    level.SELECT_ELEMENT_SQUARED_DISTANCE = 16 * 16;
 
     thread initializeInteractionsOnPlayerConnect();
 }
@@ -20,41 +21,72 @@ initializeInteractionsOnPlayerConnect()
 
 playerInteractionsLoop()
 {
+    useButtonActivatedAngles = undefined;
+    isMeleeButtonActivated = false;
+    isShootButtonActivated = false;
+
     while (isDefined(self))
     {
-        origin = self getTargetOrigin();
-        node = self getNodeInSelectRange(origin);
+        targetOrigin = self getTargetOrigin();
+        targetNode = self getNodeInSelectRange(origin);
+        targetEdge = self getEdgeInSelectRange(origin);
 
-        self.targetedNode = undefined;
-        if (isDefined(node))
-            self.targetedNode = node.uid;
-
-        if (self useButtonPressed() && !isDefined(node))
+        // Use interactions
+        if (!isDefined(useButtonActivatedAngles) && self useButtonPressed())
         {
-            insertNodeInteraction();
-
-            while (self useButtonPressed())
-                wait 0.05;
+            useButtonActivatedAngles = self getPlayerAngles();
+            useButtonActivatedInitialNode = targetNode;
         }
 
-        if (self useButtonPressed() && isDefined(node))
+        if (isDefined(useButtonActivatedAngles) && !self useButtonPressed()) // [F] button released
         {
-            startDrawingEdgeInteraction();
+            anglesDifference = getAnglesDifference(useButtonActivatedAngles, self getPlayerAngles());
+            if (anglesDifference < level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT)
+            {
+                uid = insertNodeInteraction(self GetOrigin());
+                printAction("insert node #" + uid);
+            }
+            else if (isDefined(useButtonActivatedInitialNode) && isDefined(targetNode))
+            {
+                insertEdgeInteraction(useButtonActivatedInitialNode, targetNode);
+                printAction("insert edge #" + useButtonActivatedInitialNode.uid + " -> #" + targetNode.uid);
+            }
 
-            while (self useButtonPressed(node))
-                wait 0.05;
-
-            origin = self getTargetOrigin();
-            node = self getNodeInSelectRange(origin);
-            endDrawingEdgeInteraction();
+            useButtonActivatedAngles = undefined;
+            useButtonActivatedInitialNode = undefined;
         }
 
-        if (self meleeButtonPressed() && isDefined(node))
-        {
-            debugNodeInteraction(node);
+        // Melee interactions
+        if (!isMeleeButtonActivated && self meleeButtonPressed())
+            isMeleeButtonActivated = true;
 
-            while (self meleeButtonPressed())
-                wait 0.05;
+        if (isMeleeButtonActivated && !self meleeButtonPressed())
+        {
+            isMeleeButtonActivated = false;
+            nodeOrEdge = isRemovingNodeOrEdge(targetNode, targetEdge, targetOrigin);
+
+            if (nodeOrEdge == 1)
+            {
+                deleteNodeInteraction(targetNode.uid);
+                printAction("remove node #" + targetNode.uid);
+            }
+            else if (nodeOrEdge == 2)
+            {
+                deleteEdgeInteraction(targetEdge.from, targetEdge.to);
+                printAction("remove edge #" + targetNode.from + " -> #" + targetEdge.to);
+            }
+        }
+
+        // Shoot interactions
+        if (!isShootButtonActivated && self attackButtonPressed())
+            isShootButtonActivated = true;
+
+        if (isShootButtonActivated && !self attackButtonPressed())
+        {
+            isShootButtonActivated = false;
+
+            newType = changeEdgeTypeInteraction(targetEdge.from, targetEdge.to);
+            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newType;)
         }
 
         wait 0.05;
@@ -77,20 +109,44 @@ getTargetOrigin()
 
 getNodeInSelectRange(origin)
 {
-    nodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.SELECT_NODE_SQUARED_DISTANCE);
+    nodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.SELECT_ELEMENT_SQUARED_DISTANCE);
 
     if (nodes.size > 0)
         return nodes[0];
 }
 
-insertNodeInteraction()
+getEdgeInSelectRange(origin)
 {
-    NodesInsert(level.nodes, self getTargetOrigin());
+    edges = EdgesGetElementsInSquaredDistance(level.edges, origin, level.SELECT_ELEMENT_SQUARED_DISTANCE); // TODO: implement
+
+    if (edges.size > 0)
+        return edges[0];
 }
 
-removeNodeInteraction(node)
+insertNodeInteraction(origin)
+{
+    return NodesInsert(level.nodes, origin);
+}
+
+insertEdgeInteraction(startNode, endNode)
+{
+    weight = distance(startNode.origin, endNode.origin);
+    EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL);
+}
+
+deleteNodeInteraction(node)
 {
     NodesDelete(level.nodes, node.uid);
+}
+
+deleteEdgeInteraction(from, to)
+{
+    EdgesDelete(level.edges, from, to);
+}
+
+changeEdgeTypeInteraction(from, to)
+{
+    return EdgesChangeType(level.edges, from, to);
 }
 
 startDrawingEdgeInteraction(node)
@@ -110,7 +166,7 @@ endDrawingEdgeInteraction(node)
         self iPrintln("^1Can't add edge from node to the same node");
 
     weight = distanceSquared(self.drawEdgeStartingNode.origin, node.orgin);
-    EdgesInsert(level.edges, self.drawEdgeStartingNode.uid, node.uid, weight, level.EDGE_STAND);
+    EdgesInsert(level.edges, self.drawEdgeStartingNode.uid, node.uid, weight, level.EDGE_NORMAL);
     self.drawEdgeStartingNode = undefined;
 }
 
@@ -118,4 +174,45 @@ debugNodeInteraction(node)
 {
     blanco\waypoints\draw::ClearPrintsAndLines();
     blanco\waypoints\generator::discoverFromNode(node.uid, true);
+}
+
+isRemovingNodeOrEdge(targetNode, targetEdge, targetOrigin)
+{
+    if (!isDefined(targetNode) && !isDefined(targetEdge))
+        return 0;
+
+    if (isDefined(targetNode) && !isDefined(targetEdge))
+        return 1;
+
+    if (!isDefined(targetNode) && isDefined(targetEdge))
+        return 2;
+
+    distanceToNode = distanceSquared(targetNode.origin, targetOrigin);
+    distanceToEdge = distanceSquared(targetEdge.selectOrigin, targetOrigin); // TODO: implement select origin
+    
+    if (distanceToNode < distanceToEdge)
+        return 1;
+
+    return 2;
+}
+
+printAction(message)
+{
+    self iPrintlnBold(message);
+}
+
+getAnglesDifference(anglesA, anglesB)
+{
+    diff = 0;
+    for (i = 0; i < 3; i += 1)
+    {
+        axisDiff = (anglesB[axis] - anglesA[axis] + 180) % 360 - 180;
+
+        if (axisDiff < 0)
+            axisDiff = axisDiff * -1;
+        
+        diff += axisDiff;
+    }
+
+    return diff;
 }
