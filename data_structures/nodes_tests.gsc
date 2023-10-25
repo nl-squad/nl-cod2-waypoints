@@ -36,11 +36,9 @@ NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 
     NodesDelete(nodes, id1);
 
-    elements = NodesGetAllElements(nodes);
-
-    assert(elements.size == 2);
-    assert(elements[0].uid == id2);
-    assert(elements[1].uid == id3);
+    assert(edges.elements.size == 2);
+    assert(edges.elements[0].uid == id2);
+    assert(edges.elements[1].uid == id3);
 }
 
 NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements()

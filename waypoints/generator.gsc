@@ -49,10 +49,6 @@ Start(startOrigin)
             wait 1;
         }
     }
-
-    nodesCount = NodesGetAllElements(level.nodes).size;
-    printLn("Discovered " + nodesCount + " nodes.");
-    iPrintLn("Discovered ^2" + nodesCount + " ^7nodes.");
 }
 
 resetGraph()
