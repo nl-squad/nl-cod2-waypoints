@@ -5,7 +5,7 @@
 Main()
 {
     level.MINIMUM_ANGLES_DIFFRENCE_FOR_EDGE_INSERT = 20;
-    level.SELECT_ELEMENT_SQUARED_DISTANCE = 16 * 16;
+    level.SELECT_ELEMENT_MAX_SQUARED_DISTANCE = 16 * 16;
 
     thread initializeInteractionsOnPlayerConnect();
 }
@@ -86,7 +86,7 @@ playerInteractionsLoop()
             isShootButtonActivated = false;
 
             newType = changeEdgeTypeInteraction(targetEdge.from, targetEdge.to);
-            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newType;)
+            printAction("type edge #" + targetNode.from + " -> #" + targetEdge.to + " " + newType);
         }
 
         wait 0.05;
@@ -109,18 +109,12 @@ getTargetOrigin()
 
 getNodeInSelectRange(origin)
 {
-    nodes = NodesGetElementsInSquaredDistance(level.nodes, origin, level.SELECT_ELEMENT_SQUARED_DISTANCE);
-
-    if (nodes.size > 0)
-        return nodes[0];
+    return NodesGetClosestElementInSquareDistance(level.nodes, origin, level.SELECT_ELEMENT_MAX_SQUARED_DISTANCE);
 }
 
 getEdgeInSelectRange(origin)
 {
-    edges = EdgesGetElementsInSquaredDistance(level.edges, origin, level.SELECT_ELEMENT_SQUARED_DISTANCE); // TODO: implement
-
-    if (edges.size > 0)
-        return edges[0];
+    return EdgesGetClosestElementInSquareDistance(level.edges, origin, level.SELECT_ELEMENT_MAX_SQUARED_DISTANCE);
 }
 
 insertNodeInteraction(origin)
@@ -142,9 +136,8 @@ insertEdgeInteraction(startNode, endNode)
 deleteNodeInteraction(node)
 {
     NodesDelete(level.nodes, node.uid);
-
-    // TODO: Remove edges to
-    // TODO: Remove edges from
+    EdgesDeleteFrom(level.edges, node.uid);
+    EdgesDeleteTo(level.edges, node.uid);
 }
 
 deleteEdgeInteraction(from, to)
@@ -160,28 +153,6 @@ changeEdgeTypeInteraction(from, to)
 startDrawingEdgeInteraction(node)
 {
     self.drawEdgeStartingNode = node;
-}
-
-endDrawingEdgeInteraction(node)
-{
-    if (!isDefined(node))
-    {
-        self.drawEdgeStartingNode = undefined;
-        return;
-    }
-
-    if (node.uid == self.drawEdgeStartingNode.uid)
-        self iPrintln("^1Can't add edge from node to the same node");
-
-    weight = distanceSquared(self.drawEdgeStartingNode.origin, node.orgin);
-    EdgesInsert(level.edges, self.drawEdgeStartingNode.uid, node.uid, weight, level.EDGE_NORMAL);
-    self.drawEdgeStartingNode = undefined;
-}
-
-debugNodeInteraction(node)
-{
-    blanco\waypoints\draw::ClearPrintsAndLines();
-    blanco\waypoints\generator::discoverFromNode(node.uid, true);
 }
 
 isRemovingNodeOrEdge(targetNode, targetEdge, targetOrigin)
