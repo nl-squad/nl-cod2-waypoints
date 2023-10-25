@@ -158,7 +158,7 @@ EdgesChangeType(edges, fromUid, toUid newType)
     edge = EdgesGet(edges, fromUid, toUid);
 
     if (!isDefined(newType))
-        newType = (edge.type + 1) % level.EDGE_TYPES_COUNT;
+        newType = (edge.type + 1) % level.EDGE_TYPES.size;
 
     edge.type = newType;
     return edge.type;

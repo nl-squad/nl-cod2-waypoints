@@ -1,34 +1,45 @@
 
 Main()
 {
-    level.EDGE_NORMAL = 0;
-    level.EDGE_CROUCH = 1;
-    level.EDGE_PRONE = 2;
-    level.EDGE_JUMP = 3;
-    level.EDGE_LADDER = 4;
-    level.EDGE_MANTLE = 5;
-    level.EDGE_TYPES_COUNT = 6;
+    level.EDGE_TYPES = [];
+    level.EDGE_NORMAL = defineEdgeType("^2normal", 0, rgb(46, 204, 113));
+    level.EDGE_CROUCH = defineEdgeType("^4crouch", 1, rgb(52, 152, 219));
+    level.EDGE_PRONE = defineEdgeType("^6prone", 2, rgb(155, 89, 182));
+    level.EDGE_LADDER = defineEdgeType("^1ladder", 3, rgb(241, 196, 15));
+    level.EDGE_MANTLE = defineEdgeType("^3mantle", 4, rgb(72, 219, 251));
 }
 
-GetDisplayNameForEdgeType()
+defineEdgeType(name, value, color)
 {
-    if (edgeType == level.EDGE_NORMAL)
-        return "^2Normal";
+    edgeType = spawnStruct();
+    edgeType.name = name;
+    edgeType.value = value;
+    edgeType.color = color;
 
-    if (edgeType == level.EDGE_CROUCH)
-        return "^4Crouch";
+    return value;
+}
 
-    if (edgeType == level.EDGE_PRONE)
-        return "^6Prone";
+rgb(red, green, blue)
+{
+    color = (red / 255, green / 255, blue / 255);
+    return color;
+}
 
-    if (edgeType == level.EDGE_JUMP)
-        return "^5Jump";
-
-    if (edgeType == level.EDGE_LADDER)
-        return "^1Ladder";
-
-    if (edgeType == level.EDGE_MANTLE)
-        return "^8Mantle";
+GetDisplayNameForEdgeType(edgeType)
+{
+    for (i = 0; i < level.EDGE_TYPES.size; i += 1)
+        if (level.EDGE_TYPES[i].value == edgeType)
+            return level.EDGE_TYPES[i].name;
 
     return "Unknown";
+}
+
+GetColorForEdgeType(edgeType)
+{
+    for (i = 0; i < level.EDGE_TYPES.size; i += 1)
+        if (level.EDGE_TYPES[i].value == edgeType)
+            return level.EDGE_TYPES[i].color;
+
+    defaultColor = (1, 1, 1);
+    return defaultColor;
 }

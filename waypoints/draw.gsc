@@ -20,7 +20,7 @@ initializeDrawingOnPlayerConnect()
 
 playerDrawingLoop()
 {
-    self ClearPrintsAndLines();
+    self clearPrintsAndLines();
 
     while (isDefined(self))
     {
@@ -57,8 +57,8 @@ drawNodesAndEdges()
             otherEdge = EdgesGet(level.edges, otherNode.uid, node.uid);
             midOrigin = calculateMidOrigin(node.origin, otherNode.origin);
 
-            line(node.origin, midOrigin, getColorForType(edges[j].type), false, 1);
-            line(otherNode.origin, midOrigin, getColorForType(otherEdge.type), false, 1);
+            line(node.origin, midOrigin, GetColorForEdgeType(edges[j].type), false, 1);
+            line(otherNode.origin, midOrigin, GetColorForEdgeType(otherEdge.type), false, 1);
         }
     }
 
@@ -69,7 +69,7 @@ drawNodesAndEdges()
         print3d(self.prints[i].origin, self.prints[i].text, self.prints[i].color, 1, 0.3, 1);
 }
 
-ClearPrintsAndLines()
+clearPrintsAndLines()
 {
     self.lines = [];
     self.prints = [];
@@ -103,21 +103,4 @@ calculateMidOrigin(firstOrigin, secondOrigin)
     y = firstOrigin[1] - (firstOrigin[1] - secondOrigin[1]) / 2;
     z = firstOrigin[2] - (firstOrigin[2] - secondOrigin[2]) / 2;
     return (x, y, z);
-}
-
-getColorForType(type)
-{
-    if (type == level.EDGE_NORMAL)
-        return (1, 1, 1);
-
-    if (type == level.EDGE_CROUCH)
-        return (0, 1, 0);
-
-    if (type == level.EDGE_PRONE)
-        return (0, 0, 1);
-
-    if (type == level.EDGE_JUMP)
-        return (1, 0, 0);
-
-    return (0.9, 0.7, 0.6);
 }
