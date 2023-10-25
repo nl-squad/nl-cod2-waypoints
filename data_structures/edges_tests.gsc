@@ -5,6 +5,7 @@ Main()
 {
     test("EdgesCreate__ShouldCreateEmptyEdges", ::EdgesCreate__ShouldCreateEmptyEdges);
     test("EdgesInsert__ShouldInsertEdgeIntoEdges", ::EdgesInsert__ShouldInsertEdgeIntoEdges);
+    test("EdgesGetAll__ShouldReturnAllEdges", ::EdgesGetAll__ShouldReturnAllEdges);
     test("EdgesGetFrom__ShouldReturnInsertedEdgesFrom", ::EdgesGetFrom__ShouldReturnInsertedEdgesFrom);
     test("EdgesGetFrom__ShouldReturnInsertedEdgesTo", ::EdgesGetFrom__ShouldReturnInsertedEdgesTo);
     test("EdgesDelete__ShouldRemoveEdgeFromEdges", ::EdgesDelete__ShouldRemoveEdgeFromEdges);
@@ -39,6 +40,26 @@ EdgesInsert__ShouldInsertEdgeIntoEdges()
     assert(edge.selectOrigin[0] == 10);
     assert(edge.selectOrigin[1] == 10);
     assert(edge.selectOrigin[2] == 20);
+}
+
+EdgesGetAll__ShouldReturnAllEdges()
+{
+    edges = EdgesCreate(100);
+    EdgesInsert(edges, "0", "11", 11, "type", (0, 0, 0));
+    EdgesInsert(edges, "0", "12", 12, "type", (0, 0, 0));
+    EdgesInsert(edges, "12", "11", 21, "type", (0, 0, 0));
+    EdgesInsert(edges, "0", "1", 1, "type", (1, 2, 3));
+    EdgesInsert(edges, "3", "33", 1, "type", (95, 95, 0));
+
+    assert(EdgesGetAll(edges).size == 5);
+
+    EdgesDelete(edges, "0", "1");
+
+    assert(EdgesGetAll(edges).size == 4);
+
+    EdgesDelete(edges, "3", "33");
+
+    assert(EdgesGetAll(edges).size == 3);
 }
 
 EdgesGetFrom__ShouldReturnInsertedEdgesFrom()

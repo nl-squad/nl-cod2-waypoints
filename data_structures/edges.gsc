@@ -7,6 +7,7 @@ EdgesCreate()
     edges.fromDictionary = [];
     edges.toDictionary = [];
     edges.chunks = [];
+    edges.array = [];
 
     return edges;
 }
@@ -46,6 +47,8 @@ EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin)
         edges.chunks[x][y][z] = [];
 
     edges.chunks[x][y][z][edges.chunks[x][y][z].size] = edge;
+
+    edges.array[edges.array.size] = edge;
 
     return edge;
 }
@@ -90,6 +93,14 @@ EdgesDelete(edges, fromUid, toUid)
     edges.chunks[x][y][z] = newEdgesInChunk;
 
 
+    newArray = [];
+    for (i = 0; i < edges.array.size; i += 1)
+        if (edges.array[i].fromUid != fromUid || edges.array[i].toUid != toUid)
+            newArray[newArray.size] = edges.array[i];
+
+    edges.elementsArray = newArray;
+
+
     edges.elements[key] = undefined;
 }
 
@@ -109,6 +120,11 @@ EdgesDeleteTo(edges, toUid)
 
     for (i = 0; i < edges.toDictionary[toUid].size; i += 1)
         EdgesDelete(edges, edges.toDictionary[toUid][i].fromUid, toUid);
+}
+
+EdgesGetAll(edges)
+{
+    return edges.array;
 }
 
 EdgesGetFrom(edges, fromUid)
