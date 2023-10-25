@@ -33,18 +33,18 @@ Note: To move existing node, it's required to remove the existing one and creati
 
 ## Roadmap 🛣️
 
-1. Testing framework
-2. Implement nodes structure with testing scenarios
-    - Inserting
-    - Getting
-    - Removing
-    - Get closest to origin
-    - Chunking (improved performance)
-3. Implement edges structure with testing scenarios
-    - Inserting
-    - Getting
-    - Removing
-4. Waypoint gametype
+1. ✅ Testing framework
+2. ✅ Implement nodes structure with testing scenarios
+    - ✅ Inserting
+    - ✅ Getting
+    - ✅ Removing
+    - ✅ Get closest to origin
+    - ✅ Chunking (improved performance)
+3. ✅ Implement edges structure with testing scenarios
+    - ✅ Inserting
+    - ✅ Getting
+    - ✅ Removing
+4. ✅ Waypoint gametype
 5. Player interactions
     - Inserting new node
     - Inserting new edge
