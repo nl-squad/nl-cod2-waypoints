@@ -21,6 +21,7 @@ Main()
     level.STAND_HEIGHT_AT_LEAST = 64;
     level.CROUCH_HEIGHT_AT_LEAST = 48;
     level.PRONE_HEIGHT_AT_LEAST = 32;
+    level.EDGE_SELECTOR_OFFSET = 16;
 
     level.DISCOVER_Z_OFFSET = 32;
     level.DISCOVER_MAX_DROPDOWN = 300;
@@ -81,12 +82,14 @@ discoverFromNode(nodeUid, isDebug)
 
             edgeType = getEdgeType(node.origin, existingNode.origin);
             weight = distanceSquared(node.origin, existingNode.origin);
+            
+            selectOrigins = CalculateSelectOrigins(node.origin, existingNode.origin);
 
             if (isDefined(edgeType.typeTo))
-                EdgesInsert(level.edges, nodeUid, existingNode.uid, weight, edgeType.typeTo);
+                EdgesInsert(level.edges, nodeUid, existingNode.uid, weight, edgeType.typeTo, selectOrigins.to);
 
             if (isDefined(edgeType.typeReverse))
-                EdgesInsert(level.edges, existingNode.uid, nodeUid, weight, edgeType.typeReverse);
+                EdgesInsert(level.edges, existingNode.uid, nodeUid, weight, edgeType.typeReverse, selectOrigins.reverse);
 
             continue;
         }
@@ -99,11 +102,13 @@ discoverFromNode(nodeUid, isDebug)
         if (isDebug)
             blanco\waypoints\draw::AddPrint(neighbour.origin, "New", (0.2, 0.6, 0.99));
 
+        selectOrigins = CalculateSelectOrigins(node.origin, neighbour.origin);
+
         if (isDefined(neighbour.typeTo))
-            EdgesInsert(level.edges, nodeUid, insertedNodeId, weight, neighbour.typeTo);
+            EdgesInsert(level.edges, nodeUid, insertedNodeId, weight, neighbour.typeTo, selectOrigins.to);
 
         if (isDefined(neighbour.typeReverse))
-            EdgesInsert(level.edges, insertedNodeId, nodeUid, weight, neighbour.typeReverse);
+            EdgesInsert(level.edges, insertedNodeId, nodeUid, weight, neighbour.typeReverse, selectOrigins.reverse);
     }
 }
 

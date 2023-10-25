@@ -7,7 +7,7 @@ EdgesCreate()
     return edges;
 }
 
-EdgesInsert(edges, fromUid, toUid, weight, type)
+EdgesInsert(edges, fromUid, toUid, weight, type, selectOrigin)
 {
     from = fromUid + "";
     to = toUid + "";
@@ -27,6 +27,7 @@ EdgesInsert(edges, fromUid, toUid, weight, type)
     edgeStruct.to = toUid;
     edgeStruct.weight = weight;
     edgeStruct.type = type;
+    edgeStruct.selectOrigin = selectOrigin;
 
     assert(!isDefined(edges.elements[from].dictionary[to]));
 
@@ -94,4 +95,15 @@ EdgesChangeType(edges, from, to, newType)
 
     edge.type = newType;
     return edge.type;
+}
+
+CalculateSelectOrigins(startOrigin, endOrigin)
+{
+    midDistance = distance(startOrigin, endOrigin) / 2;
+    normal = vectorNormalize(endOrigin - startOrigin);
+
+    selectOrigins = spawnStruct();
+    selectOrigins.to = startOrigin + maps\mp\_utility::vectorScale(normal, midDistance - level.EDGE_SELECTOR_OFFSET);
+    selectOrigins.reverse = startOrigin + maps\mp\_utility::vectorScale(normal, midDistance + level.EDGE_SELECTOR_OFFSET);
+    return selectOrigins;
 }

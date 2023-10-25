@@ -130,6 +130,11 @@ insertNodeInteraction(origin)
 
 insertEdgeInteraction(startNode, endNode)
 {
+    midDistance = distance(existingNode.origin, node.origin) / 2;
+    differenceNormalVector = vectorNormalize(existingNode.origin - node.origin);
+    toSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance - level.EDGE_SELECTOR_OFFSET);
+    reverseSelectOrigin = node.origin + maps\mp\_utility::vectorScale(differenceNormalVector, midDistance + level.EDGE_SELECTOR_OFFSET);
+
     weight = distance(startNode.origin, endNode.origin);
     EdgesInsert(level.edges, startNode.uid, endNode.uid, weight, level.EDGE_NORMAL);
 }
@@ -137,6 +142,9 @@ insertEdgeInteraction(startNode, endNode)
 deleteNodeInteraction(node)
 {
     NodesDelete(level.nodes, node.uid);
+
+    // TODO: Remove edges to
+    // TODO: Remove edges from
 }
 
 deleteEdgeInteraction(from, to)
@@ -188,8 +196,8 @@ isRemovingNodeOrEdge(targetNode, targetEdge, targetOrigin)
         return 2;
 
     distanceToNode = distanceSquared(targetNode.origin, targetOrigin);
-    distanceToEdge = distanceSquared(targetEdge.selectOrigin, targetOrigin); // TODO: implement select origin
-    
+    distanceToEdge = distanceSquared(targetEdge.selectOrigin, targetOrigin);
+
     if (distanceToNode < distanceToEdge)
         return 1;
 
