@@ -17,7 +17,7 @@ initializeDisplaying()
 		players = getEntArray("player", "classname");
         for (j = 0; j < players.size; j += 1)
         {
-            nodes = NodesGetElementsInSquaredDistance(level.nodes, self.origin, level.DISPLAYING_NODE_SQUARED_DISTANCE);
+            nodes = NodesGetElementsInSquaredDistance(level.nodes, players[j].origin, level.DISPLAYING_NODE_SQUARED_DISTANCE);
             for (i = 0; i < nodes.size; i += 1)
                 if (!isDefined(displayed[nodes[i].uid]))
                 {
@@ -25,7 +25,7 @@ initializeDisplaying()
                     playFx(level.NODE_FX, nodes[i].origin);
                 }
 
-            edges = EdgesGetElementsInSquaredDistance(level.edges, self.origin, level.DISPLAYING_EDGE_SQUARED_DISTANCE);
+            edges = EdgesGetElementsInSquaredDistance(level.edges, players[j].origin, level.DISPLAYING_EDGE_SQUARED_DISTANCE);
             for (i = 0; i < edges.size; i += 1)
                 if (!isDefined(displayed[edges[i].fromUid + "_" + edges[i].toUid]))
                 {
