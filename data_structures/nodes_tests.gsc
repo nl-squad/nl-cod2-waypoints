@@ -50,7 +50,7 @@ NodesInsert__ShouldInsertElementIntoNodes()
 {
     nodes = NodesCreate(100);
     insertedNode = NodesInsert(nodes, (200, 300, 400));
-    node = NodesGet(insertedNode.uid);
+    node = NodesGet(nodes, insertedNode.uid);
     
     assert(insertedNode.uid == "1");
     assert(node.uid == "1");
@@ -65,25 +65,25 @@ NodesDelete__ShouldStillMakeItPossibleToGetAllElements()
 
     NodesDelete(nodes, insertedNode1.uid);
 
-    assert(edges.elements.size == 2);
-    assert(edges.elements[0].uid == id2);
-    assert(edges.elements[1].uid == id3);
+    assert(NodesGetAll(nodes).size == 2);
+    assert(NodesGet(insertedNode2.uid).uid == insertedNode2.uid);
+    assert(NodesGetAll(nodes)[1].uid == insertedNode3.uid);
 }
 
 NodesDeleteAndInsert__ShouldNotChangeIDsOfOtherElements()
 {
     nodes = NodesCreate(100);
     insertedNode1 = NodesInsert(nodes, (200, 300, 400));
-    id2 = NodesInsert(nodes, (300, 400, 500));
+    insertedNode2 = NodesInsert(nodes, (300, 400, 500));
 
     NodesDelete(nodes, insertedNode1.uid);
     
-    assert(NodesGetElement(nodes, insertedNode2.uid).origin == (300, 400, 500));
+    assert(NodesGet(nodes, insertedNode2.uid).origin == (300, 400, 500));
 
     insertedNode3 = NodesInsert(nodes, (500, 600, 700));
 
     assert(insertedNode3.uid != insertedNode1.uid);
-    assert(NodesGetElement(nodes, insertedNode3.uid).origin == (500, 600, 700));
+    assert(NodesGet(nodes, insertedNode3.uid).origin == (500, 600, 700));
 }
 
 NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
@@ -95,8 +95,8 @@ NodesGetElementsInSquaredDistance__ShouldReturnElementsInGivenSquaredDistance()
     elements = NodesGetElementsInSquaredDistance(nodes, (250, 350, 450), 20000);
 
     assert(elements.size == 2);
-    assert(isDefined(NodesGetElement(nodes, insertedNode1.uid)));
-    assert(isDefined(NodesGetElement(nodes, insertedNode2.uid)));
+    assert(isDefined(NodesGet(nodes, insertedNode1.uid)));
+    assert(isDefined(NodesGet(nodes, insertedNode2.uid)));
 }
 
 NodesGetElementsInSquaredDistance__ShouldNotReturnElementsOutOfGivenSquaredDistance()

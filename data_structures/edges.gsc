@@ -1,5 +1,6 @@
+#include blanco\math;
 
-EdgesCreate()
+EdgesCreate(chunkSize)
 {
     edges = spawnStruct();
     edges.chunkSize = chunkSize;
@@ -98,7 +99,7 @@ EdgesDelete(edges, fromUid, toUid)
         if (edges.array[i].fromUid != fromUid || edges.array[i].toUid != toUid)
             newArray[newArray.size] = edges.array[i];
 
-    edges.elementsArray = newArray;
+    edges.array = newArray;
 
 
     edges.elements[key] = undefined;
@@ -153,7 +154,7 @@ EdgesGet(edges, fromUid, toUid)
     return edges.elements[getKey(fromUid, toUid)];
 }
 
-EdgesChangeType(edges, fromUid, toUid newType)
+EdgesChangeType(edges, fromUid, toUid, newType)
 {
     edge = EdgesGet(edges, fromUid, toUid);
 
@@ -238,19 +239,10 @@ getEdgesInChunk(edges, x, y, z)
         || !isDefined(edges.chunks[x][y][z]))
         return [];
 
-    return edges.dictionary[x][y][z];
+    return edges.chunks[x][y][z];
 }
 
 getKey(fromUid, toUid)
 {
     return fromUid + "_" + toUid;
-}
-
-ceil(num)
-{
-    floor = int(num);
-    if (num == floor)
-        return floor;
-
-    return floor + 1;
 }

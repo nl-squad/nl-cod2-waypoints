@@ -10,8 +10,8 @@ Main()
     test("EdgesGetFrom__ShouldReturnInsertedEdgesTo", ::EdgesGetFrom__ShouldReturnInsertedEdgesTo);
     test("EdgesDelete__ShouldRemoveEdgeFromEdges", ::EdgesDelete__ShouldRemoveEdgeFromEdges);
     test("EdgesExists__ShouldCheckIfEdgeExists", ::EdgesExists__ShouldCheckIfEdgeExists);
-    test("EdgesGet__ShouldReturnInsertedEdge", ::EdgesGet__ShouldReturnInsertedEdge);
     test("EdgesCalculateSelectOrigins_ShouldCalculateToAndReverse", ::EdgesCalculateSelectOrigins_ShouldCalculateToAndReverse);
+    test("EdgesInsert_ShouldAssignCorrectChunks", ::EdgesInsert_ShouldAssignCorrectChunks);
     test("EdgesGetElementsInSquaredDistance_ShouldReturnEveryEdgeInDistance", ::EdgesGetElementsInSquaredDistance_ShouldReturnEveryEdgeInDistance);
     test("EdgesGetClosestElementInSquareDistance_ShouldFindClosestEdge", ::EdgesGetClosestElementInSquareDistance_ShouldFindClosestEdge);
 }
@@ -126,12 +126,12 @@ EdgesCalculateSelectOrigins_ShouldCalculateToAndReverse()
 
     selectOrigins = EdgesCalculateSelectOrigins(originA, originB);
 
-    assert(selectOrigin.forward[0] == 10);
-    assert(selectOrigin.forward[1] == 110 - level.EDGE_SELECTOR_OFFSET);
-    assert(selectOrigin.forward[2] == 13);
-    assert(selectOrigin.reverse[0] == 10);
-    assert(selectOrigin.reverse[1] == 110 + level.EDGE_SELECTOR_OFFSET);
-    assert(selectOrigin.reverse[2] == 13);
+    assert(selectOrigins.forward[0] == 10);
+    assert(selectOrigins.forward[1] == 110 - level.EDGE_SELECTOR_OFFSET);
+    assert(selectOrigins.forward[2] == 13);
+    assert(selectOrigins.reverse[0] == 10);
+    assert(selectOrigins.reverse[1] == 110 + level.EDGE_SELECTOR_OFFSET);
+    assert(selectOrigins.reverse[2] == 13);
 }
 
 EdgesInsert_ShouldAssignCorrectChunks()

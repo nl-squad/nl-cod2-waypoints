@@ -1,3 +1,4 @@
+#include blanco\math;
 
 NodesCreate(chunkSize)
 {
@@ -23,7 +24,7 @@ NodesGet(nodes, uid)
 
 NodesInsert(nodes, origin)
 {
-    uid = nodes.nextUid;
+    uid = nodes.nextUid + "";
     nodes.nextUid += 1;
 
     node = spawnStruct();
@@ -137,7 +138,7 @@ NodesGetElementsInSquaredDistance(nodes, origin, squaredDistance)
                 nodesInChunk = getNodesInChunk(nodes, x, y, z);
                 for (i = 0; i < nodesInChunk.size; i += 1)
                     if (distanceSquared(origin, nodesInChunk[i].origin) <= squaredDistance)
-                        foundNodes[indices.size] = nodesInChunk[i];
+                        foundNodes[foundNodes.size] = nodesInChunk[i];
             }
         }
     }
@@ -153,13 +154,4 @@ getNodesInChunk(nodes, x, y, z)
         return [];
 
     return nodes.chunks[x][y][z];
-}
-
-ceil(num)
-{
-    floor = int(num);
-    if (num == floor)
-        return floor;
-
-    return floor + 1;
 }

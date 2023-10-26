@@ -10,27 +10,30 @@ Main()
 Edges_ShouldReferenceNodeUids()
 {
     nodes = NodesCreate(100);
-    edges = EdgesCreate();
+    edges = EdgesCreate(100);
 
-    uid1 = NodesInsert(nodes, (0, 0, 0));
-    uid2 = NodesInsert(nodes, (0, 100, 0));
-    EdgesInsert(edges, uid1, uid2, 10000, 1);
+    insertedNode1 = NodesInsert(nodes, (0, 0, 0));
+    insertedNode2 = NodesInsert(nodes, (0, 100, 0));
 
-    edgesFromUid1 = EdgesGetFrom(edges, uid1);
+    weight = EdgesCalculateDistance(insertedNode1.origin, insertedNode2.origin);
+    selectOrigins = EdgesCalculateSelectOrigins(insertedNode1.origin, insertedNode2.origin);
+    EdgesInsert(edges, insertedNode1.uid, insertedNode2.uid, weight, 1, selectOrigins.forward);
+
+    edgesFromUid1 = EdgesGetFrom(edges, insertedNode1.uid);
     assert(edgesFromUid1.size == 1);
 
-    edgesFromUid2 = EdgesGetFrom(edges, uid2);
+    edgesFromUid2 = EdgesGetFrom(edges, insertedNode2.uid);
     assert(edgesFromUid2.size == 0);
 
     firstEdge = edgesFromUid1[0];
-    otherNode = NodesGetElement(nodes, firstEdge.to);
+    otherNode = NodesGet(nodes, firstEdge.toUid);
 
     assert(isDefined(otherNode));
     assert(isDefined(otherNode.origin));
 
-    edgesFromOtherNode = EdgesGet(edges, otherNode.uid, uid1);
-    assert(edgesFromOtherNode.size == 0);
+    edgeFromOtherNode = EdgesGet(edges, otherNode.uid, insertedNode1.uid);
+    assert(!isDefined(edgeFromOtherNode));
     
-    edgesFromOtherNode = EdgesGet(edges, uid1, otherNode.uid);
-    assert(edgesFromOtherNode.size == 1);
+    edgesFromInsertedNode = EdgesGet(edges, insertedNode1.uid, otherNode.uid);
+    assert(isDefined(edgesFromInsertedNode));
 }
