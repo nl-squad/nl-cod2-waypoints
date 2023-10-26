@@ -27,14 +27,15 @@ initializeInteractionsOnPlayerConnect()
 playerInteractionsLoop()
 {
     useButtonActivatedAngles = undefined;
+    useButtonActivatedInitialNode = undefined;
     isMeleeButtonActivated = false;
     isShootButtonActivated = false;
 
     while (isDefined(self))
     {
         targetOrigin = self getTargetOrigin();
-        targetNode = self getNodeInSelectRange(origin);
-        targetEdge = self getEdgeInSelectRange(origin);
+        targetNode = self getNodeInSelectRange(targetOrigin);
+        targetEdge = self getEdgeInSelectRange(targetOrigin);
 
         self.targetedNode = targetNode;
         self.targetedEdge = targetEdge;
@@ -136,15 +137,15 @@ insertNodeInteraction(origin)
     for (i = 0; i < nearbyNodes.size; i += 1)
     {
         edgeType = estimateEdgeType(insertedNode, nearbyNodes[i]);
-        weight = EdgesCalculateDistance(startNode.origin, nearbyNodes[i].origin);
+        weight = EdgesCalculateDistance(insertedNode.origin, nearbyNodes[i].origin);
         selectOrigins = EdgesCalculateSelectOrigins(insertedNode.origin, nearbyNodes[i].origin);
 
         edgeFrom = EdgesInsert(level.edges, insertedNode.uid, nearbyNodes[i].uid, weight, edgeType, selectOrigins.forward);
         edgeTo = EdgesInsert(level.edges, nearbyNodes[i].uid, insertedNode.uid, weight, edgeType, selectOrigins.reverse);
 
         edgeTypeDisplayName = blanco\waypoints\edge_types::GetDisplayNameForEdgeType(edgeType);
-        printAction("discover edge #" + edgeFrom.fromUid + " -> #" + edgeFrom.toUid + " " + edgeFromTypeDisplayName);
-        printAction("discover edge #" + edgeTo.fromUid + " -> #" + edgeTo.toUid + " " + edgeFromTypeDisplayName);
+        printAction("discover edge #" + edgeFrom.fromUid + " -> #" + edgeFrom.toUid + " " + edgeTypeDisplayName);
+        printAction("discover edge #" + edgeTo.fromUid + " -> #" + edgeTo.toUid + " " + edgeTypeDisplayName);
     }
 
     return insertedNode;
@@ -207,7 +208,7 @@ printAction(message)
 getAnglesDifference(anglesA, anglesB)
 {
     diff = 0;
-    for (i = 0; i < 3; i += 1)
+    for (axis = 0; axis < 3; axis += 1)
     {
         axisDiff = (anglesB[axis] - anglesA[axis] + 180) % 360 - 180;
 
