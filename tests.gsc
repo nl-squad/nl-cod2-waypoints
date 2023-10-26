@@ -24,8 +24,8 @@ RunAll()
 
     for (i = 0; i < level.tests.size; i += 1)
     {
+        Println("Running test: " + level.tests[i].name);
         [[ level.tests[i].function ]]();
-        Println(level.tests[i].name + "... ok");
     }
 
     Println("Performed " + level.tests.size + " tests");
