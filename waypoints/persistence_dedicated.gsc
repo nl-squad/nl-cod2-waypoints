@@ -1,3 +1,8 @@
+#include blanco\utils;
+#include blanco\math;
+#include blanco\data_structures\edges;
+#include blanco\data_structures\nodes;
+
 Main()
 {
     level.FLOAT_PERSIST_PRECISSION = 1000;
@@ -27,9 +32,9 @@ saveNodesToDatabase()
     {
         node = nodes[i];
 
-        org0 = ceil(edge.selectOrigin[0] * level.FLOAT_PERSIST_PRECISSION);
-        org1 = ceil(edge.selectOrigin[1] * level.FLOAT_PERSIST_PRECISSION);
-        org2 = ceil(edge.selectOrigin[2] * level.FLOAT_PERSIST_PRECISSION);
+        org0 = ceil(node.origin[0] * level.FLOAT_PERSIST_PRECISSION);
+        org1 = ceil(node.origin[1] * level.FLOAT_PERSIST_PRECISSION);
+        org2 = ceil(node.origin[2] * level.FLOAT_PERSIST_PRECISSION);
 
         sql += "('" + getCvar("mapname") + "', '" + node.uid + "', " + org0 + ", " + org1 + ", " + org2 + "), ";
     }
@@ -114,13 +119,4 @@ loadedEdgesFromDatabase(result)
     }
 
     mysql_free_result(result);
-}
-
-ceil(num)
-{
-    floor = int(num);
-    if (num == floor)
-        return floor;
-
-    return floor + 1;
 }

@@ -1,5 +1,7 @@
 Main()
 {
+    level.EDGE_SELECTOR_OFFSET = 12;
+
     blanco\data_structures\nodes_tests::Main();
     blanco\data_structures\edges_tests::Main();
     blanco\data_structures\integration_tests::Main();

@@ -1,3 +1,5 @@
+#include blanco\math;
+
 Main()
 {
     level.FLOAT_PERSIST_PRECISSION = 1000;
@@ -112,13 +114,4 @@ loadEdgesFromFile(fileHandle, argumentsCount)
     selectOrigin = (originX, originY, originZ);
 
     EdgesLoad(level.edges, fromUid, toUid, weight, type, selectOrigin);
-}
-
-ceil(num)
-{
-    floor = int(num);
-    if (num == floor)
-        return floor;
-
-    return floor + 1;
 }

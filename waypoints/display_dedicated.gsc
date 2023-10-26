@@ -1,3 +1,6 @@
+#include blanco\data_structures\edges;
+#include blanco\data_structures\nodes;
+
 Main()
 {
     level.DISPLAYING_NODE_SQUARED_DISTANCE = 200 * 200;
@@ -38,7 +41,7 @@ initializeDisplaying()
                     if (isTargetedEdge(edges[i]))
                         playFx(level.TARGET_FX, edges[i].selectOrigin);
                     else
-                        playFx(GetFxForEdgeType(edges[i].type), edges[i].selectOrigin);
+                        playFx(blanco\waypoints\edge_types::GetFxForEdgeType(edges[i].type), edges[i].selectOrigin);
                 }
         }
 
@@ -60,7 +63,7 @@ isTargetedEdge(edge)
 {
     players = getEntArray("player", "classname");
     for (i = 0; i < players.size; i += 1)
-        if (isDefined(players[i].targetedEdge) && players[i].targetedEdge.fromUid == node.uid)
+        if (isDefined(players[i].targetedEdge) && players[i].targetedEdge.fromUid == edge.fromUid && players[i].targetedEdge.toUid == edge.toUid)
             return true;
 
     return false;
